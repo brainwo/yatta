@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   fluent_ui: ^4.0.0
+  youtube_api: ^1.0.4
 
 dev_dependencies:
   flutter_test:
