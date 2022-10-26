@@ -31,16 +31,17 @@ void main() async {
   // File file = File('data.json');
   // if (await file.exists()) {
   // String fileAsString = await file.readAsString()
-  runApp(AnimatedBuilder(animation: notifier,
-      builder: (context,widget) {
-      return const App();
-  }));
+  runApp(AnimatedBuilder(
+      animation: notifier,
+      builder: (context, widget) {
+        return const App();
+      }));
 }
 
-  class App extends StatelessWidget {
-    const App({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
-    @override
+  @override
   Widget build(BuildContext context) {
     FocusNode searchBoxFocus = FocusNode();
     FocusNode scrollItemFocus = FocusNode();
@@ -95,7 +96,7 @@ void main() async {
             break;
         }
         if (event.isKeyPressed(LogicalKeyboardKey.enter) && result.isNotEmpty) {
-          playVideo(result[selectedVideo.value!]);
+          processVideo(result[selectedVideo.value!]);
         }
         return KeyEventResult.ignored;
       }),
@@ -134,44 +135,55 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-enum SearchBoxMode { video, playlist, channel, all }
+enum SearchBoxMode { video, playlist, channel, all, play }
 
 class _HomePageState extends State<HomePage> {
   YoutubeAPI ytApi = YoutubeAPI(innerKey);
   String noResultString = AppString.noSearchQuery;
   bool loading = false;
   SearchBoxMode searchBoxMode = SearchBoxMode.all;
+  TextEditingController textBoxController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController textBoxController = TextEditingController();
-
     textBoxController.addListener(() {
       if (searchBoxMode == SearchBoxMode.all) {
         switch (textBoxController.text) {
           case 'v ':
             setState(() {
               searchBoxMode = SearchBoxMode.video;
+              textBoxController.text = '';
             });
             break;
           case 'c ':
             setState(() {
               searchBoxMode = SearchBoxMode.channel;
+              textBoxController.text = '';
             });
             break;
           case 'p ':
             setState(() {
               searchBoxMode = SearchBoxMode.playlist;
+              textBoxController.text = '';
             });
             break;
         }
+      }
+      if (textBoxController.text.startsWith('https://')) {
+        setState(() {
+          searchBoxMode = SearchBoxMode.play;
+        });
+      } else if (searchBoxMode == SearchBoxMode.play) {
+        setState(() {
+          searchBoxMode = SearchBoxMode.all;
+        });
       }
     });
 
     Widget searchResult = Container(
       color: appTheme.background,
       child: (result.isEmpty)
-          ? Center(child: Text(noResultString))
+          ? Container() // TODO: a nice elementaryOS-like welcoming message
           : ListItem(
               homepage: widget,
               result: result,
@@ -185,11 +197,23 @@ class _HomePageState extends State<HomePage> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            if (searchBoxMode != SearchBoxMode.all)
+            if (searchBoxMode != SearchBoxMode.all &&
+                searchBoxMode != SearchBoxMode.play)
               Row(
                 children: [
-                  Text(
-                      '${searchBoxMode.name[0].toUpperCase()}${searchBoxMode.name.substring(1)}'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: appTheme.primary,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(6.0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          '${searchBoxMode.name[0].toUpperCase()}${searchBoxMode.name.substring(1)}'),
+                    ),
+                  ),
                   const SizedBox(width: 8.0),
                 ],
               ),
@@ -197,6 +221,7 @@ class _HomePageState extends State<HomePage> {
               child: KeyboardListener(
                 focusNode: FocusNode(onKey: ((node, event) {
                   if (searchBoxMode != SearchBoxMode.all &&
+                      searchBoxMode != SearchBoxMode.play &&
                       event.isKeyPressed(LogicalKeyboardKey.backspace) &&
                       textBoxController.text == '') {
                     setState(() {
@@ -207,26 +232,28 @@ class _HomePageState extends State<HomePage> {
                   return KeyEventResult.ignored;
                 })),
                 child: TextBox(
-                  // foregroundDecoration: BoxDecoration(
-                  // border: Border.all(width: 1.0),
-                  // ),
                   autocorrect: false,
-                  placeholder: searchBoxMode == SearchBoxMode.all
+		  autofocus: true,
+                  placeholder: (searchBoxMode == SearchBoxMode.all ||
+                          searchBoxMode == SearchBoxMode.play)
                       ? AppString.searchPlaceholderAll
                       : AppString.searchPlaceholder,
                   focusNode: widget.searchBoxFocus,
                   controller: textBoxController,
-                  onSubmitted: searchHandler,
+                  onSubmitted: topbarHandler,
                 ),
               ),
             ),
-            const SizedBox(width: 16.0),
+            const SizedBox(width: 8.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Button(
-                  child: const Center(child: Icon(FluentIcons.search)),
+                  child: Center(
+                      child: Icon(searchBoxMode == SearchBoxMode.play
+                          ? FluentIcons.play
+                          : FluentIcons.search)),
                   onPressed: () {
-                    searchHandler(textBoxController.text);
+                    topbarHandler(textBoxController.text);
                   }),
             )
           ],
@@ -247,10 +274,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void searchHandler(String query) {
+  void topbarHandler(String query) {
+    if (searchBoxMode == SearchBoxMode.play) {
+      playVideo(query).then(
+        (_) {
+          SystemNavigator.pop();
+        },
+      );
+      return;
+    }
+
     setState(() {
       loading = true;
     });
+
     ytApi
         .search(query,
             type: searchBoxMode == SearchBoxMode.all

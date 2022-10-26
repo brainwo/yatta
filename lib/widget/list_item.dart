@@ -56,7 +56,7 @@ class _ListItemState extends State<ListItem> {
                             return ListItemVideo(
                               onClick: () async {
                                 if (widget.selected.value == index) {
-                                  playVideo(item);
+                                  processVideo(item);
                                 }
                                 widget.selected.value = index;
                               },
@@ -81,7 +81,7 @@ class _ListItemState extends State<ListItem> {
                             return ListItemPlaylist(
                               onClick: () async {
                                 if (widget.selected.value == index) {
-                                  playVideo(item);
+                                  processVideo(item);
                                 }
                                 widget.selected.value = index;
                               },
