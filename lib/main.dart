@@ -31,6 +31,16 @@ void main() async {
   // File file = File('data.json');
   // if (await file.exists()) {
   // String fileAsString = await file.readAsString()
+  runApp(AnimatedBuilder(animation: notifier,
+      builder: (context,widget) {
+      return const App();
+  }));
+}
+
+  class App extends StatelessWidget {
+    const App({super.key});
+
+    @override
   Widget build(BuildContext context) {
     FocusNode searchBoxFocus = FocusNode();
     FocusNode scrollItemFocus = FocusNode();
@@ -210,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            const SizedBox(width: 8.0),
+            const SizedBox(width: 16.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Button(
