@@ -45,7 +45,7 @@ class ListItemChannel extends StatelessWidget {
                 children: [
                   Text(channelTitle),
                   const Text(
-                    "channel",
+                    'channel',
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),
                 ],

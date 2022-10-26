@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart';
+import 'package:ythacker/helper.dart';
+
 import 'widget/list_item.dart';
 
 import 'theme/arc_dark.dart';
@@ -5,6 +8,8 @@ import 'string/en_us.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
 import 'const.dart';
+
+List<YouTubeVideo> result = [];
 
 void main() {
   runApp(const App());
@@ -18,42 +23,57 @@ class App extends StatelessWidget {
     FocusNode searchBoxFocus = FocusNode();
     FocusNode scrollItemFocus = FocusNode();
     ScrollController scrollviewController = ScrollController();
+    ValueNotifier<int?> selectedVideo = ValueNotifier<int?>(null);
 
     return KeyboardListener(
       focusNode: FocusNode(onKey: (node, event) {
         debugPrint(event.logicalKey.keyLabel);
         switch (event.logicalKey.keyLabel) {
-          case "Tab":
+          case 'Tab':
             node.requestFocus(scrollItemFocus);
             return KeyEventResult.handled;
-          case "/":
+          case '/':
             node.requestFocus(searchBoxFocus);
             return KeyEventResult.handled;
-          case "Home":
-          case "Page Up":
-            debugPrint("${scrollviewController.positions}");
+          case 'Home':
+          case 'Page Up':
+            debugPrint('${scrollviewController.positions}');
             scrollviewController.jumpTo(0.0);
             return KeyEventResult.handled;
-          case "End":
-          case "Page Down":
-            debugPrint("${scrollviewController.positions}");
+          case 'End':
+          case 'Page Down':
+            debugPrint('${scrollviewController.positions}');
             scrollviewController
                 .jumpTo(scrollviewController.position.maxScrollExtent);
             return KeyEventResult.handled;
-          case "J":
-            if (!searchBoxFocus.hasFocus && scrollviewController.positions.isNotEmpty) {
+          case 'J':
+            if (!searchBoxFocus.hasFocus &&
+                scrollviewController.positions.isNotEmpty) {
               scrollviewController
                   .jumpTo(scrollviewController.offset + scrollAmount);
+              if (event.isKeyPressed(LogicalKeyboardKey.keyJ) &&
+                      ((selectedVideo.value ?? 0) < 9) ||
+                  selectedVideo.value == null) {
+                selectedVideo.value = (selectedVideo.value ?? -1) + 1;
+              }
               return KeyEventResult.handled;
             }
             break;
-          case "K":
-            if (!searchBoxFocus.hasFocus && scrollviewController.positions.isNotEmpty) {
+          case 'K':
+            if (!searchBoxFocus.hasFocus &&
+                scrollviewController.positions.isNotEmpty) {
               scrollviewController
                   .jumpTo(scrollviewController.offset - scrollAmount);
+              if (event.isKeyPressed(LogicalKeyboardKey.keyK) &&
+                  (selectedVideo.value ?? -1) > 0) {
+                selectedVideo.value = (selectedVideo.value ?? 1) - 1;
+              }
               return KeyEventResult.handled;
             }
             break;
+        }
+        if (event.isKeyPressed(LogicalKeyboardKey.enter) && result.isNotEmpty) {
+          playVideo(result[selectedVideo.value!]);
         }
         return KeyEventResult.skipRemainingHandlers;
       }),
@@ -68,6 +88,7 @@ class App extends StatelessWidget {
         home: HomePage(
           searchBoxFocus: searchBoxFocus,
           scrollviewController: scrollviewController,
+          selectedVideo: selectedVideo,
         ),
       ),
     );
@@ -78,10 +99,12 @@ class HomePage extends StatefulWidget {
   const HomePage(
       {super.key,
       required this.searchBoxFocus,
-      required this.scrollviewController});
+      required this.scrollviewController,
+      required this.selectedVideo});
 
   final FocusNode searchBoxFocus;
   final ScrollController scrollviewController;
+  final ValueNotifier<int?> selectedVideo;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -89,37 +112,60 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   YoutubeAPI ytApi = YoutubeAPI(innerKey);
-  List<YouTubeVideo> result = [];
   String noResultString = AppString.noSearchQuery;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
     TextEditingController textBoxController = TextEditingController();
 
-    Widget searchResult = (result.isEmpty)
-        ? Center(child: Text(noResultString))
-        : ListItem(homepage: widget, result: result);
+    Widget searchResult = Container(
+        color: AppTheme.background,
+        child: (result.isEmpty)
+            ? Center(child: Text(noResultString))
+            : ListItem(
+                homepage: widget,
+                result: result,
+                selected: widget.selectedVideo));
 
     return NavigationView(
       appBar: NavigationAppBar(
+        backgroundColor: AppTheme.backgroundDarker,
+        automaticallyImplyLeading: false,
         title: TextBox(
-          placeholder: "Search...",
+          placeholder: AppString.searchPlaceholder,
           focusNode: widget.searchBoxFocus,
           controller: textBoxController,
           onSubmitted: (query) {
-            ytApi.search(query).then((value) {
+            setState(() {
+              loading = true;
+            });
+            ytApi.search(query, type: 'playlist').then((value) {
               setState(() {
                 result = value;
+                loading = false;
               });
-            }, onError: (e) {
+            }, onError: (err) {
               setState(() {
-                noResultString = "Error: $e";
+                noResultString = '${AppString.errorInformation}$err';
+                loading = false;
               });
             });
           },
         ),
       ),
-      content: searchResult,
+      content: Stack(
+        children: [
+          searchResult,
+          if (loading)
+            SizedBox.expand(
+              child: Container(
+                color: const Color.fromRGBO(0, 0, 0, 0.5),
+                child: const Center(child: ProgressRing()),
+              ),
+            )
+        ],
+      ),
     );
   }
 }

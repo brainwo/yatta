@@ -7,5 +7,10 @@ class AppString {
   /// prevents instantiation and extension.
   AppString._();
 
-  static const String noSearchQuery = "No search query";
+  static const String noSearchQuery = 'No search query';
+  static const String searchPlaceholder = 'Search... (video, channel, playlist)';
+  static const String errorInformation = 'Error: ';
+
+  static const String video = 'Video';
+  static const String playlist = 'Playlist';
 }
