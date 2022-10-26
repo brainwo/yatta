@@ -30,26 +30,7 @@ void main() async {
 
   // File file = File('data.json');
   // if (await file.exists()) {
-  // String fileAsString = await file.readAsString();
-  // List<dynamic> data = jsonDecode(fileAsString);
-  // result = data.map((item) => YouTubeVideo(item)).toList();
-  // debugPrint('$result');
-  // notifier.value = result;
-  // } else {
-  // debugPrint('Create new data');
-  // }
-
-  runApp(AnimatedBuilder(
-      animation: notifier,
-      builder: (context, widget) {
-        return const App();
-      }));
-}
-
-class App extends StatelessWidget {
-  const App({super.key});
-
-  @override
+  // String fileAsString = await file.readAsString()
   Widget build(BuildContext context) {
     FocusNode searchBoxFocus = FocusNode();
     FocusNode scrollItemFocus = FocusNode();
@@ -58,22 +39,22 @@ class App extends StatelessWidget {
 
     return KeyboardListener(
       focusNode: FocusNode(onKey: (node, event) {
-        debugPrint(event.logicalKey.keyLabel);
         switch (event.logicalKey.keyLabel) {
           case 'Tab':
             node.requestFocus(scrollItemFocus);
             return KeyEventResult.handled;
           case '/':
-            node.requestFocus(searchBoxFocus);
-            return KeyEventResult.handled;
+            if (!searchBoxFocus.hasFocus) {
+              node.requestFocus(searchBoxFocus);
+              return KeyEventResult.handled;
+            }
+            break;
           case 'Home':
           case 'Page Up':
-            debugPrint('${scrollviewController.positions}');
             scrollviewController.jumpTo(0.0);
             return KeyEventResult.handled;
           case 'End':
           case 'Page Down':
-            debugPrint('${scrollviewController.positions}');
             scrollviewController
                 .jumpTo(scrollviewController.position.maxScrollExtent);
             return KeyEventResult.handled;
@@ -106,12 +87,14 @@ class App extends StatelessWidget {
         if (event.isKeyPressed(LogicalKeyboardKey.enter) && result.isNotEmpty) {
           playVideo(result[selectedVideo.value!]);
         }
-        return KeyEventResult.skipRemainingHandlers;
+        return KeyEventResult.ignored;
       }),
       child: FluentApp(
+        debugShowCheckedModeBanner: false,
         title: 'YT Hacker',
         theme: ThemeData(
           brightness: Brightness.dark,
+          accentColor: appTheme.primary.toAccentColor(),
           scaffoldBackgroundColor: appTheme.background,
           micaBackgroundColor: appTheme.background,
           activeColor: appTheme.primary,
@@ -176,13 +159,15 @@ class _HomePageState extends State<HomePage> {
     });
 
     Widget searchResult = Container(
-        color: appTheme.background,
-        child: (result.isEmpty)
-            ? Center(child: Text(noResultString))
-            : ListItem(
-                homepage: widget,
-                result: result,
-                selected: widget.selectedVideo));
+      color: appTheme.background,
+      child: (result.isEmpty)
+          ? Center(child: Text(noResultString))
+          : ListItem(
+              homepage: widget,
+              result: result,
+              selected: widget.selectedVideo,
+            ),
+    );
 
     return NavigationView(
       appBar: NavigationAppBar(
@@ -199,33 +184,41 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             Expanded(
-              child: TextBox(
-                placeholder: searchBoxMode == SearchBoxMode.all ? AppString.searchPlaceholderAll : AppString.searchPlaceholder,
-                focusNode: widget.searchBoxFocus,
-                controller: textBoxController,
-                onSubmitted: (query) {
-                  setState(() {
-                    loading = true;
-                  });
-                  ytApi
-                      .search(query,
-                          type: searchBoxMode == SearchBoxMode.all
-                              ? 'video,channel,playlist'
-                              : searchBoxMode.name)
-                      .then((value) {
+              child: KeyboardListener(
+                focusNode: FocusNode(onKey: ((node, event) {
+                  if (searchBoxMode != SearchBoxMode.all &&
+                      event.isKeyPressed(LogicalKeyboardKey.backspace) &&
+                      textBoxController.text == '') {
                     setState(() {
-                      result = value;
-                      loading = false;
+                      searchBoxMode = SearchBoxMode.all;
                     });
-                  }, onError: (err) {
-                    setState(() {
-                      noResultString = '${AppString.errorInformation}$err';
-                      loading = false;
-                    });
-                  });
-                },
+                    return KeyEventResult.handled;
+                  }
+                  return KeyEventResult.ignored;
+                })),
+                child: TextBox(
+                  // foregroundDecoration: BoxDecoration(
+                  // border: Border.all(width: 1.0),
+                  // ),
+                  autocorrect: false,
+                  placeholder: searchBoxMode == SearchBoxMode.all
+                      ? AppString.searchPlaceholderAll
+                      : AppString.searchPlaceholder,
+                  focusNode: widget.searchBoxFocus,
+                  controller: textBoxController,
+                  onSubmitted: searchHandler,
+                ),
               ),
             ),
+            const SizedBox(width: 8.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Button(
+                  child: const Center(child: Icon(FluentIcons.search)),
+                  onPressed: () {
+                    searchHandler(textBoxController.text);
+                  }),
+            )
           ],
         ),
       ),
@@ -235,12 +228,34 @@ class _HomePageState extends State<HomePage> {
           if (loading)
             SizedBox.expand(
               child: Container(
-                color: const Color.fromRGBO(0, 0, 0, 0.5),
+                color: appTheme.backgroundDarker.withOpacity(0.5),
                 child: const Center(child: ProgressRing()),
               ),
             )
         ],
       ),
     );
+  }
+
+  void searchHandler(String query) {
+    setState(() {
+      loading = true;
+    });
+    ytApi
+        .search(query,
+            type: searchBoxMode == SearchBoxMode.all
+                ? 'video,channel,playlist'
+                : searchBoxMode.name)
+        .then((value) {
+      setState(() {
+        result = value;
+        loading = false;
+      });
+    }, onError: (err) {
+      setState(() {
+        noResultString = '${AppString.errorInformation}$err';
+        loading = false;
+      });
+    });
   }
 }
