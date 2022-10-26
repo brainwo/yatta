@@ -34,17 +34,20 @@ void playVideo(YouTubeVideo item) async {
     }
   ];
 
-  var file = File('data.json');
-  if (await file.exists()) {
-    List<Map<String, dynamic>> previousData =
-        jsonDecode(await file.readAsString());
-    previousData.addAll(entry);
-    await file
-        .writeAsString(jsonEncode(previousData))
-        .whenComplete(() => SystemNavigator.pop());
-  } else {
-    await file
-        .writeAsString(jsonEncode(entry))
-        .whenComplete(() => SystemNavigator.pop());
-  }
+  // TODO: load data.json
+  // var file = File('data.json');
+  // if (await file.exists()) {
+    // List<Map<String, dynamic>> previousData =
+        // jsonDecode(await file.readAsString());
+    // previousData.addAll(entry);
+    // await file
+        // .writeAsString(jsonEncode(previousData))
+        // .whenComplete(() => SystemNavigator.pop());
+  // } else {
+    // await file
+        // .writeAsString(jsonEncode(entry))
+        // .whenComplete(() => SystemNavigator.pop());
+  // }
+
+  SystemNavigator.pop();
 }

@@ -1,32 +1,43 @@
+// ignore: unused_import
 import 'dart:convert';
+// ignore: unused_import
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:ythacker/helper.dart';
+import 'helper.dart';
+import 'theme.dart';
 
 import 'widget/list_item.dart';
 
-import 'theme/arc_dark.dart';
 import 'string/en_us.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
 import 'const.dart';
 
 List<YouTubeVideo> result = [];
+AppTheme appTheme = AppTheme.archDark();
 
 void main() async {
   ValueNotifier<List<YouTubeVideo>> notifier = ValueNotifier(result);
 
-  File file = File('data.json');
-  if (await file.exists()) {
-    String fileAsString = await file.readAsString();
-    List<dynamic> data = jsonDecode(fileAsString);
-    // result = data.map((item) => YouTubeVideo(item)).toList();
-    debugPrint('$result');
-    notifier.value = result;
-  } else {
-    debugPrint('awia');
-  }
+  // File config = File('~/.config/ythacker/config.json');
+
+  // if (await config.exists()) {
+  // config.readAsString();
+  // } else {
+  // config.create(recursive: true);
+  // }
+
+  // File file = File('data.json');
+  // if (await file.exists()) {
+  // String fileAsString = await file.readAsString();
+  // List<dynamic> data = jsonDecode(fileAsString);
+  // result = data.map((item) => YouTubeVideo(item)).toList();
+  // debugPrint('$result');
+  // notifier.value = result;
+  // } else {
+  // debugPrint('Create new data');
+  // }
 
   runApp(AnimatedBuilder(
       animation: notifier,
@@ -101,9 +112,9 @@ class App extends StatelessWidget {
         title: 'YT Hacker',
         theme: ThemeData(
           brightness: Brightness.dark,
-          scaffoldBackgroundColor: AppTheme.background,
-          micaBackgroundColor: AppTheme.background,
-          activeColor: AppTheme.primary,
+          scaffoldBackgroundColor: appTheme.background,
+          micaBackgroundColor: appTheme.background,
+          activeColor: appTheme.primary,
         ),
         home: HomePage(
           searchBoxFocus: searchBoxFocus,
@@ -130,17 +141,42 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum SearchBoxMode { video, playlist, channel, all }
+
 class _HomePageState extends State<HomePage> {
   YoutubeAPI ytApi = YoutubeAPI(innerKey);
   String noResultString = AppString.noSearchQuery;
   bool loading = false;
+  SearchBoxMode searchBoxMode = SearchBoxMode.all;
 
   @override
   Widget build(BuildContext context) {
     TextEditingController textBoxController = TextEditingController();
 
+    textBoxController.addListener(() {
+      if (searchBoxMode == SearchBoxMode.all) {
+        switch (textBoxController.text) {
+          case 'v ':
+            setState(() {
+              searchBoxMode = SearchBoxMode.video;
+            });
+            break;
+          case 'c ':
+            setState(() {
+              searchBoxMode = SearchBoxMode.channel;
+            });
+            break;
+          case 'p ':
+            setState(() {
+              searchBoxMode = SearchBoxMode.playlist;
+            });
+            break;
+        }
+      }
+    });
+
     Widget searchResult = Container(
-        color: AppTheme.background,
+        color: appTheme.background,
         child: (result.isEmpty)
             ? Center(child: Text(noResultString))
             : ListItem(
@@ -150,28 +186,47 @@ class _HomePageState extends State<HomePage> {
 
     return NavigationView(
       appBar: NavigationAppBar(
-        backgroundColor: AppTheme.backgroundDarker,
+        backgroundColor: appTheme.backgroundDarker,
         automaticallyImplyLeading: false,
-        title: TextBox(
-          placeholder: AppString.searchPlaceholder,
-          focusNode: widget.searchBoxFocus,
-          controller: textBoxController,
-          onSubmitted: (query) {
-            setState(() {
-              loading = true;
-            });
-            ytApi.search(query, type: 'playlist').then((value) {
-              setState(() {
-                result = value;
-                loading = false;
-              });
-            }, onError: (err) {
-              setState(() {
-                noResultString = '${AppString.errorInformation}$err';
-                loading = false;
-              });
-            });
-          },
+        title: Row(
+          children: [
+            if (searchBoxMode != SearchBoxMode.all)
+              Row(
+                children: [
+                  Text(
+                      '${searchBoxMode.name[0].toUpperCase()}${searchBoxMode.name.substring(1)}'),
+                  const SizedBox(width: 8.0),
+                ],
+              ),
+            Expanded(
+              child: TextBox(
+                placeholder: searchBoxMode == SearchBoxMode.all ? AppString.searchPlaceholderAll : AppString.searchPlaceholder,
+                focusNode: widget.searchBoxFocus,
+                controller: textBoxController,
+                onSubmitted: (query) {
+                  setState(() {
+                    loading = true;
+                  });
+                  ytApi
+                      .search(query,
+                          type: searchBoxMode == SearchBoxMode.all
+                              ? 'video,channel,playlist'
+                              : searchBoxMode.name)
+                      .then((value) {
+                    setState(() {
+                      result = value;
+                      loading = false;
+                    });
+                  }, onError: (err) {
+                    setState(() {
+                      noResultString = '${AppString.errorInformation}$err';
+                      loading = false;
+                    });
+                  });
+                },
+              ),
+            ),
+          ],
         ),
       ),
       content: Stack(
