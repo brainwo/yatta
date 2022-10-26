@@ -1,5 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
+import '../../string/en_us.dart';
+
 class ListItemPlaylist extends StatelessWidget {
   final String title;
   final String channelTitle;
@@ -59,7 +61,7 @@ class ListItemPlaylist extends StatelessWidget {
                       description!,
                       style: const TextStyle(fontWeight: FontWeight.w300),
                     ),
-                  const Text(
+                   const Text(
                     AppString.playlist,
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),

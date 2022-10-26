@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:ythacker/helper.dart';
 
@@ -11,8 +14,25 @@ import 'const.dart';
 
 List<YouTubeVideo> result = [];
 
-void main() {
-  runApp(const App());
+void main() async {
+  ValueNotifier<List<YouTubeVideo>> notifier = ValueNotifier(result);
+
+  File file = File('data.json');
+  if (await file.exists()) {
+    String fileAsString = await file.readAsString();
+    List<dynamic> data = jsonDecode(fileAsString);
+    // result = data.map((item) => YouTubeVideo(item)).toList();
+    debugPrint('$result');
+    notifier.value = result;
+  } else {
+    debugPrint('awia');
+  }
+
+  runApp(AnimatedBuilder(
+      animation: notifier,
+      builder: (context, widget) {
+        return const App();
+      }));
 }
 
 class App extends StatelessWidget {
