@@ -15,7 +15,16 @@ Future<void> playVideo(String url) async {
     '-wid',
     'WID',
     '--profile=wallpaper',
+    '--input-ipc-server=/tmp/mpvsocket',
     url
+  ]);
+
+  await Process.start('kitty', [
+    '@',
+    '--to=unix:/tmp/mykitty',
+    'set-colors',
+    '-a',
+    'background=#1f1f1f',
   ]);
 }
 

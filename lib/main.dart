@@ -54,6 +54,12 @@ class App extends StatelessWidget {
           case 'Tab':
             node.requestFocus(scrollItemFocus);
             return KeyEventResult.handled;
+          case 'L':
+            if (!searchBoxFocus.hasFocus && event.isControlPressed) {
+              node.requestFocus(searchBoxFocus);
+              return KeyEventResult.handled;
+            }
+            break;
           case '/':
             if (!searchBoxFocus.hasFocus) {
               node.requestFocus(searchBoxFocus);
@@ -233,7 +239,7 @@ class _HomePageState extends State<HomePage> {
                 })),
                 child: TextBox(
                   autocorrect: false,
-		  autofocus: true,
+                  autofocus: true,
                   placeholder: (searchBoxMode == SearchBoxMode.all ||
                           searchBoxMode == SearchBoxMode.play)
                       ? AppString.searchPlaceholderAll
@@ -266,7 +272,10 @@ class _HomePageState extends State<HomePage> {
             SizedBox.expand(
               child: Container(
                 color: appTheme.backgroundDarker.withOpacity(0.5),
-                child: const Center(child: ProgressRing()),
+                child:  Center(
+                    child: ProgressRing(
+                  backgroundColor: appTheme.background,
+                )),
               ),
             )
         ],
