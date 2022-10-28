@@ -31,7 +31,6 @@ class ListItem extends StatefulWidget {
   final ValueNotifier<int?> selected;
   final List<YouTubeVideo> result;
 
-
   @override
   State<ListItem> createState() => _ListItemState();
 }
@@ -60,9 +59,9 @@ class _ListItemState extends State<ListItem> {
                                 }
                                 widget.selected.value = index;
                               },
-                              title: item.title,
+                              title: item.title.replaceAll('&amp;', '&'),
                               channelTitle: item.channelTitle,
-                              description: item.description!,
+                              description: item.description,
                               duration: item.duration!,
                               thumbnailUrl: item.thumbnail.medium.url,
                             );
@@ -85,9 +84,9 @@ class _ListItemState extends State<ListItem> {
                                 }
                                 widget.selected.value = index;
                               },
-                              title: item.title,
+                              title: item.title.replaceAll('&amp;', '&'),
                               channelTitle: item.channelTitle,
-                              description: item.description!,
+                              description: item.description,
                               thumbnailUrl: item.thumbnail.medium.url,
                             );
                           default:
