@@ -59,7 +59,10 @@ class _ListItemState extends State<ListItem> {
                                 }
                                 widget.selected.value = index;
                               },
-                              title: item.title.replaceAll('&amp;', '&'),
+                              title: item.title
+                                  .replaceAll('&amp;', '&')
+                                  .replaceAll('&#39;', '\'')
+                                  .replaceAll('&quot;', '"'),
                               channelTitle: item.channelTitle,
                               description: item.description,
                               duration: item.duration!,
@@ -84,7 +87,10 @@ class _ListItemState extends State<ListItem> {
                                 }
                                 widget.selected.value = index;
                               },
-                              title: item.title.replaceAll('&amp;', '&'),
+                              title: item.title
+                                  .replaceAll('&amp;', '&')
+                                  .replaceAll('&#39;', '\'')
+                                  .replaceAll('&quot;', '"'),
                               channelTitle: item.channelTitle,
                               description: item.description,
                               thumbnailUrl: item.thumbnail.medium.url,
