@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
-import 'package:ythacker/widget/list_item/playlist.dart';
+import 'package:yatta/widget/list_item/playlist.dart';
 import 'dart:io';
 
 import '../helper.dart';

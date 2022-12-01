@@ -3,40 +3,30 @@ import 'dart:convert';
 // ignore: unused_import
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-import 'helper.dart';
-import 'theme.dart';
-
-import 'widget/list_item.dart';
-
-import 'string/en_us.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:youtube_api/youtube_api.dart';
-import 'const.dart';
 
-List<YouTubeVideo> result = [];
-AppTheme appTheme = AppTheme.archDark();
+import 'const.dart';
+import 'helper.dart';
+import 'string/en_us.dart';
+import 'theme.dart';
+import 'widget/keyboard_handler.dart';
+import 'widget/list_item.dart';
 
 void main() async {
   ValueNotifier<List<YouTubeVideo>> notifier = ValueNotifier(result);
 
-  // File config = File('~/.config/ythacker/config.json');
-
-  // if (await config.exists()) {
-  // config.readAsString();
-  // } else {
-  // config.create(recursive: true);
-  // }
-
-  // File file = File('data.json');
-  // if (await file.exists()) {
-  // String fileAsString = await file.readAsString()
   runApp(AnimatedBuilder(
       animation: notifier,
       builder: (context, widget) {
         return const App();
       }));
 }
+
+AppTheme appTheme = AppTheme.archDark();
+
+List<YouTubeVideo> result = [];
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -48,67 +38,14 @@ class App extends StatelessWidget {
     ScrollController scrollviewController = ScrollController();
     ValueNotifier<int?> selectedVideo = ValueNotifier<int?>(null);
 
-    return KeyboardListener(
-      focusNode: FocusNode(onKey: (node, event) {
-        switch (event.logicalKey.keyLabel) {
-          case 'Tab':
-            node.requestFocus(scrollItemFocus);
-            return KeyEventResult.handled;
-          case 'L':
-            if (!searchBoxFocus.hasFocus && event.isControlPressed) {
-              node.requestFocus(searchBoxFocus);
-              return KeyEventResult.handled;
-            }
-            break;
-          case '/':
-            if (!searchBoxFocus.hasFocus) {
-              node.requestFocus(searchBoxFocus);
-              return KeyEventResult.handled;
-            }
-            break;
-          case 'Home':
-          case 'Page Up':
-            scrollviewController.jumpTo(0.0);
-            return KeyEventResult.handled;
-          case 'End':
-          case 'Page Down':
-            scrollviewController
-                .jumpTo(scrollviewController.position.maxScrollExtent);
-            return KeyEventResult.handled;
-          case 'J':
-            if (!searchBoxFocus.hasFocus &&
-                scrollviewController.positions.isNotEmpty) {
-              scrollviewController
-                  .jumpTo(scrollviewController.offset + scrollAmount);
-              if (event.isKeyPressed(LogicalKeyboardKey.keyJ) &&
-                      ((selectedVideo.value ?? 0) < 9) ||
-                  selectedVideo.value == null) {
-                selectedVideo.value = (selectedVideo.value ?? -1) + 1;
-              }
-              return KeyEventResult.handled;
-            }
-            break;
-          case 'K':
-            if (!searchBoxFocus.hasFocus &&
-                scrollviewController.positions.isNotEmpty) {
-              scrollviewController
-                  .jumpTo(scrollviewController.offset - scrollAmount);
-              if (event.isKeyPressed(LogicalKeyboardKey.keyK) &&
-                  (selectedVideo.value ?? -1) > 0) {
-                selectedVideo.value = (selectedVideo.value ?? 1) - 1;
-              }
-              return KeyEventResult.handled;
-            }
-            break;
-        }
-        if (event.isKeyPressed(LogicalKeyboardKey.enter) && result.isNotEmpty) {
-          processVideo(result[selectedVideo.value!]);
-        }
-        return KeyEventResult.ignored;
-      }),
+    return KeyboardHandler(
+      scrollItemFocus: scrollItemFocus,
+      searchBoxFocus: searchBoxFocus,
+      scrollviewController: scrollviewController,
+      selectedVideo: selectedVideo,
       child: FluentApp(
         debugShowCheckedModeBanner: false,
-        title: 'YT Hacker',
+        title: 'Yatta',
         theme: ThemeData(
           brightness: Brightness.dark,
           accentColor: appTheme.primary.toAccentColor(),
@@ -127,15 +64,15 @@ class App extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
+  final FocusNode searchBoxFocus;
+
+  final ScrollController scrollviewController;
+  final ValueNotifier<int?> selectedVideo;
   const HomePage(
       {super.key,
       required this.searchBoxFocus,
       required this.scrollviewController,
       required this.selectedVideo});
-
-  final FocusNode searchBoxFocus;
-  final ScrollController scrollviewController;
-  final ValueNotifier<int?> selectedVideo;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -272,7 +209,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox.expand(
               child: Container(
                 color: appTheme.backgroundDarker.withOpacity(0.5),
-                child:  Center(
+                child: Center(
                     child: ProgressRing(
                   backgroundColor: appTheme.background,
                 )),
