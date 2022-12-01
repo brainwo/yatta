@@ -22,7 +22,7 @@ class AppTheme {
     );
   }
 
-  static AppTheme? from(String themeName) {
+  static AppTheme? from(final String themeName) {
     switch (themeName) {
       case 'Arc-Dark':
         return archDark();

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:youtube_api/youtube_api.dart';
 
-Future<void> playVideo(String url) async {
+Future<void> playVideo(final String url) async {
   // ignore: unused_local_variable
-  Process process = await Process.start('xwinwrap', [
+  final Process process = await Process.start('xwinwrap', [
     '-ov',
     '-g',
     '1920x1080+0+0',
@@ -28,24 +28,24 @@ Future<void> playVideo(String url) async {
   ]);
 }
 
-void processVideo(YouTubeVideo item) async {
+Future<void> processVideo(final YouTubeVideo item) async {
   await playVideo(item.url);
 
-  List<Map<String, dynamic>> entry = [
-    {
-      'id': {
-        if (item.id != null) 'id': item.id,
-        if (item.kind != null) 'kind': item.kind,
-      },
-      'snippet': {
-        'channelTitle': item.channelTitle,
-        if (item.description != null) 'description': item.description,
-        'title': item.title,
-        if (item.publishedAt != null) 'publishedAt': item.publishedAt,
-        if (item.channelId != null) 'channelId': item.channelId,
-      }
-    }
-  ];
+  // final List<Map<String, dynamic>> entry = [
+  // {
+  // 'id': {
+  // if (item.id != null) 'id': item.id,
+  // if (item.kind != null) 'kind': item.kind,
+  // },
+  // 'snippet': {
+  // 'channelTitle': item.channelTitle,
+  // if (item.description != null) 'description': item.description,
+  // 'title': item.title,
+  // if (item.publishedAt != null) 'publishedAt': item.publishedAt,
+  // if (item.channelId != null) 'channelId': item.channelId,
+  // }
+  // }
+  // ];
 
   // TODO: load data.json
   // var file = File('data.json');
@@ -62,5 +62,5 @@ void processVideo(YouTubeVideo item) async {
   // .whenComplete(() => SystemNavigator.pop());
   // }
 
-  SystemNavigator.pop();
+  await SystemNavigator.pop();
 }

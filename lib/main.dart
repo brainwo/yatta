@@ -13,13 +13,14 @@ import 'string/en_us.dart';
 import 'theme.dart';
 import 'widget/keyboard_handler.dart';
 import 'widget/list_item.dart';
+import 'widget/welcome_message.dart';
 
 void main() async {
-  ValueNotifier<List<YouTubeVideo>> notifier = ValueNotifier(result);
+  final ValueNotifier<List<YouTubeVideo>> notifier = ValueNotifier(result);
 
   runApp(AnimatedBuilder(
       animation: notifier,
-      builder: (context, widget) {
+      builder: (final context, final widget) {
         return const App();
       }));
 }
@@ -32,11 +33,11 @@ class App extends StatelessWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    FocusNode searchBoxFocus = FocusNode();
-    FocusNode scrollItemFocus = FocusNode();
-    ScrollController scrollviewController = ScrollController();
-    ValueNotifier<int?> selectedVideo = ValueNotifier<int?>(null);
+  Widget build(final BuildContext context) {
+    final FocusNode searchBoxFocus = FocusNode();
+    final FocusNode scrollItemFocus = FocusNode();
+    final ScrollController scrollviewController = ScrollController();
+    final ValueNotifier<int?> selectedVideo = ValueNotifier<int?>(null);
 
     return KeyboardHandler(
       scrollItemFocus: scrollItemFocus,
@@ -68,11 +69,12 @@ class HomePage extends StatefulWidget {
 
   final ScrollController scrollviewController;
   final ValueNotifier<int?> selectedVideo;
-  const HomePage(
-      {super.key,
-      required this.searchBoxFocus,
-      required this.scrollviewController,
-      required this.selectedVideo});
+  const HomePage({
+    required this.searchBoxFocus,
+    required this.scrollviewController,
+    required this.selectedVideo,
+    super.key,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -88,7 +90,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController textBoxController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     textBoxController.addListener(() {
       if (searchBoxMode == SearchBoxMode.all) {
         switch (textBoxController.text) {
@@ -123,10 +125,10 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    Widget searchResult = Container(
+    final Widget searchResult = ColoredBox(
       color: appTheme.background,
       child: (result.isEmpty)
-          ? Container() // TODO: a nice elementaryOS-like welcoming message
+          ? const WelcomeMessage()
           : ListItem(
               homepage: widget,
               result: result,
@@ -162,7 +164,7 @@ class _HomePageState extends State<HomePage> {
               ),
             Expanded(
               child: KeyboardListener(
-                focusNode: FocusNode(onKey: ((node, event) {
+                focusNode: FocusNode(onKey: (final node, final event) {
                   if (searchBoxMode != SearchBoxMode.all &&
                       searchBoxMode != SearchBoxMode.play &&
                       event.isKeyPressed(LogicalKeyboardKey.backspace) &&
@@ -173,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                     return KeyEventResult.handled;
                   }
                   return KeyEventResult.ignored;
-                })),
+                }),
                 child: TextBox(
                   autocorrect: false,
                   autofocus: true,
@@ -207,7 +209,7 @@ class _HomePageState extends State<HomePage> {
           searchResult,
           if (loading)
             SizedBox.expand(
-              child: Container(
+              child: ColoredBox(
                 color: appTheme.backgroundDarker.withOpacity(0.5),
                 child: Center(
                     child: ProgressRing(
@@ -220,10 +222,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void topbarHandler(String query) {
+  void topbarHandler(final String query) {
     if (searchBoxMode == SearchBoxMode.play) {
       playVideo(query).then(
-        (_) {
+        (final _) {
           SystemNavigator.pop();
         },
       );
@@ -239,12 +241,12 @@ class _HomePageState extends State<HomePage> {
             type: searchBoxMode == SearchBoxMode.all
                 ? 'video,channel,playlist'
                 : searchBoxMode.name)
-        .then((value) {
+        .then((final value) {
       setState(() {
         result = value;
         loading = false;
       });
-    }, onError: (err) {
+    }, onError: (final dynamic err) {
       setState(() {
         noResultString = '${AppString.errorInformation}$err';
         loading = false;

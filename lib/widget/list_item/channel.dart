@@ -6,14 +6,14 @@ class ListItemChannel extends StatelessWidget {
   final void Function()? onClick;
 
   const ListItemChannel({
-    Key? key,
     required this.channelTitle,
     required this.onClick,
+    final Key? key,
     this.thumbnailUrl,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: onClick,
       child: Padding(

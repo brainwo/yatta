@@ -1,18 +1,19 @@
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
-import 'package:yatta/widget/list_item/playlist.dart';
-import 'dart:io';
 
 import '../helper.dart';
 import '../main.dart';
-import 'list_item/video.dart';
 import 'list_item/channel.dart';
+import 'list_item/playlist.dart';
+import 'list_item/video.dart';
 
 class ListItemController extends ChangeNotifier {
-  ListItemController({int? selected}) : _selected = selected;
+  ListItemController({final int? selected}) : _selected = selected;
   int? get selected => _selected;
 
-  set selected(int? index) {
+  set selected(final int? index) {
     selected = index;
   }
 
@@ -21,10 +22,10 @@ class ListItemController extends ChangeNotifier {
 
 class ListItem extends StatefulWidget {
   const ListItem({
-    Key? key,
     required this.homepage,
     required this.result,
     required this.selected,
+    final Key? key,
   }) : super(key: key);
 
   final HomePage homepage;
@@ -37,10 +38,10 @@ class ListItem extends StatefulWidget {
 
 class _ListItemState extends State<ListItem> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return AnimatedBuilder(
         animation: widget.selected,
-        builder: (BuildContext context, Widget? child) {
+        builder: (final BuildContext context, final Widget? child) {
           return SingleChildScrollView(
             controller: widget.homepage.scrollviewController,
             child: Column(
@@ -48,7 +49,7 @@ class _ListItemState extends State<ListItem> {
               children: [
                 ...widget.result
                     .asMap()
-                    .map((index, YouTubeVideo item) {
+                    .map((final index, final YouTubeVideo item) {
                       Widget listItem() {
                         switch (item.kind) {
                           case 'video':
@@ -103,7 +104,7 @@ class _ListItemState extends State<ListItem> {
 
                       return MapEntry(
                           index,
-                          Container(
+                          ColoredBox(
                               color: (widget.selected.value == index)
                                   ? const Color.fromRGBO(255, 255, 255, 0.2)
                                   : Colors.transparent,

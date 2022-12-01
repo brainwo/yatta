@@ -7,12 +7,12 @@ import '../main.dart';
 
 class KeyboardHandler extends StatelessWidget {
   const KeyboardHandler({
-    Key? key,
     required this.scrollItemFocus,
     required this.searchBoxFocus,
     required this.scrollviewController,
     required this.selectedVideo,
     required this.child,
+    final Key? key,
   }) : super(key: key);
 
   final FocusNode scrollItemFocus;
@@ -22,9 +22,10 @@ class KeyboardHandler extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return KeyboardListener(
-        focusNode: FocusNode(onKey: (node, event) {
+        focusNode:
+            FocusNode(onKey: (final FocusNode node, final RawKeyEvent event) {
           switch (event.logicalKey.keyLabel) {
             case 'Tab':
               node.requestFocus(scrollItemFocus);

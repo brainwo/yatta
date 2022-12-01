@@ -9,17 +9,17 @@ class ListItemVideo extends StatelessWidget {
   final String duration;
 
   const ListItemVideo({
-    Key? key,
     required this.title,
     required this.channelTitle,
     required this.description,
     required this.duration,
     required this.onClick,
+    final Key? key,
     this.thumbnailUrl,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: onClick,
       child: Padding(
@@ -40,7 +40,7 @@ class ListItemVideo extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: Container(
+                    child: ColoredBox(
                       color: Colors.black,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

@@ -10,16 +10,16 @@ class ListItemPlaylist extends StatelessWidget {
   final void Function()? onClick;
 
   const ListItemPlaylist({
-    Key? key,
     required this.title,
     required this.channelTitle,
     required this.description,
     required this.onClick,
+    final Key? key,
     this.thumbnailUrl,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: onClick,
       child: Padding(
@@ -61,7 +61,7 @@ class ListItemPlaylist extends StatelessWidget {
                       description!,
                       style: const TextStyle(fontWeight: FontWeight.w300),
                     ),
-                   const Text(
+                  const Text(
                     AppString.playlist,
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),
