@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-import '../../string/en_us.dart';
+import '../../i18n/en_us.dart';
 
 class ListItemPlaylist extends StatelessWidget {
   final String title;
