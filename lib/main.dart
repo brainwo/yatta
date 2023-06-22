@@ -9,7 +9,7 @@ import 'package:youtube_api/youtube_api.dart';
 
 import 'const.dart';
 import 'helper.dart';
-import 'string/en_us.dart';
+import 'i18n//en_us.dart';
 import 'theme.dart';
 import 'widget/keyboard_handler.dart';
 import 'widget/list_item.dart';
