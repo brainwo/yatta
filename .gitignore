@@ -47,3 +47,5 @@ data.json
 
 .cache/
 compile_commands.json
+flutter_jank*.json
+flutter_*.png
