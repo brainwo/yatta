@@ -1,5 +1,7 @@
 include: package:extra_pedantic/analysis_options.yaml
 
 linter:
-    rules:
-        prefer_single_quotes: true
+  rules:
+    prefer_single_quotes: true
+    prefer_int_literals: true
+    omit_local_variable_types: true

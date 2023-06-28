@@ -1,4 +1,5 @@
-const String innerKey = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+const String defaultThemeName = 'Arc-Dark';
 
-/// The amount of scroll on the main scroll view when pressing keyboard keys
-const double scrollAmount = 10.0;
+const String searchModeVideoShortcut = 'v ';
+const String searchModeChannelShortcut = 'c ';
+const String searchModePlaylistShortcut = 'p ';
