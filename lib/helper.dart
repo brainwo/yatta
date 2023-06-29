@@ -180,10 +180,11 @@ class PlayVideo {
       final historyQueue = Queue.of(
         prefs.getStringList('history') ?? <String>[],
       );
-      historyQueue.add(youtubeVideo.toString());
-      if (historyQueue.length > (prefs.getInt('history_to_keep') ?? 200)) {
+
+      if (historyQueue.length >= (prefs.getInt('history_to_keep') ?? 200)) {
         historyQueue.removeFirst();
       }
+      historyQueue.add(youtubeVideo.toString());
 
       await prefs.setStringList('history', historyQueue.toList());
     }
