@@ -1,12 +1,12 @@
-part of search_result;
+part of list_item;
 
-class _ListItemPlaylist extends StatelessWidget {
+class ListItemPlaylist extends StatelessWidget {
   final String title;
   final String channelTitle;
   final String? description;
   final String? thumbnailUrl;
 
-  const _ListItemPlaylist({
+  const ListItemPlaylist({
     required this.title,
     required this.channelTitle,
     required this.description,

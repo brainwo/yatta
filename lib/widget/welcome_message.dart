@@ -26,7 +26,7 @@ class WelcomeMessage extends StatelessWidget {
                   ),
                   const WidgetSpan(child: SizedBox(width: 8)),
                   TextSpan(
-                    text: 'v1.0.0',
+                    text: 'pre-1.0.0',
                     style: FluentTheme.of(context)
                         .typography
                         .caption

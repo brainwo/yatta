@@ -47,7 +47,7 @@ class SearchError extends StatelessWidget {
             style: FluentTheme.of(context).typography.title,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
           const Text('Error details: '),
           const SizedBox(height: 8),
           IntrinsicHeight(
@@ -58,13 +58,14 @@ class SearchError extends StatelessWidget {
                 Expanded(
                   child: TextBox(
                     readOnly: true,
+                    minLines: 1,
                     maxLines: 4,
                     controller: TextEditingController()..text = errorText,
                   ),
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  height: 40,
+                  height: 36,
                   child: Tooltip(
                     message: 'Copy to clipboard',
                     child: Button(
