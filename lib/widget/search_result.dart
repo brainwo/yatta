@@ -8,20 +8,34 @@ import 'keyboard_navigation.dart';
 import 'list_items/list_item.dart';
 
 class SearchResult extends StatelessWidget {
+  final List<YoutubeVideo> result;
+  final void Function() loadMoreCallback;
+  final bool nextButtonEnabled;
+
   const SearchResult({
     required this.result,
+    required this.loadMoreCallback,
+    required this.nextButtonEnabled,
     final Key? key,
   }) : super(key: key);
 
-  final List<YoutubeVideo> result;
   static final timeNow = DateTime.now();
 
   @override
   Widget build(final BuildContext context) {
     return KeyboardNavigation(
       child: ListView.builder(
-          itemCount: result.length,
+          itemCount: result.length + 1,
           itemBuilder: (final context, final index) {
+            if (index == result.length) {
+              return Padding(
+                padding: const EdgeInsets.all(8),
+                child: Button(
+                  child: const Text('Load more'),
+                  onPressed: nextButtonEnabled ? loadMoreCallback : null,
+                ),
+              );
+            }
             final youtubeVideo = result[index];
             final title = youtubeVideo.title
                 .replaceAll('&amp;', '&')
