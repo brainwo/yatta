@@ -47,6 +47,7 @@ class App extends StatelessWidget {
           const SingleActivator(LogicalKeyboardKey.escape):
               const NavigationPopIntent(),
         },
+        // TODO: theme provider
         theme: FluentThemeData.dark().copyWith(
           accentColor: appTheme.primary.toAccentColor(),
           activeColor: appTheme.primary,

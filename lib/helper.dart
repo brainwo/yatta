@@ -70,19 +70,28 @@ class PlayVideo {
       final Object fromObject, final String command) {
     late final String url;
     late final String title;
+    late final String description;
     late final String type;
+    late final String preview;
+    late final String thumbnail;
     late final String icon;
 
     switch (fromObject) {
       case YoutubeVideo():
         url = fromObject.url;
         title = fromObject.title;
+        description = fromObject.description ?? '';
         type = fromObject.kind ?? 'video';
-        icon = fromObject.thumbnail.medium.url ?? '';
+        preview = fromObject.thumbnail.high.url ?? '';
+        thumbnail = fromObject.thumbnail.medium.url ?? '';
+        icon = fromObject.thumbnail.small.url ?? '';
       case String():
         url = fromObject;
         title = '';
+        description = '';
         type = 'url';
+        preview = '';
+        thumbnail = '';
         icon = '';
       default:
         throw Exception('Unexpected fromObject type');
@@ -96,7 +105,10 @@ class PlayVideo {
       buff.last += switch (dollarSignStack) {
         '\$url' => url,
         '\$title' => title,
+        '\$description' => description,
         '\$type' => type,
+        '\$preview' => preview,
+        '\$thumbnail' => thumbnail,
         '\$icon' => icon,
         final _ => '',
       };
@@ -105,18 +117,16 @@ class PlayVideo {
 
     for (var i = 0; i < command.length; i++) {
       if (dollarSignStack.isNotEmpty) {
-        switch (command[i]) {
-          case '\$':
-          case ' ':
-          case '"':
+        if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+            .contains(RegExp(command[i]))) {
+          dollarSignStack += command[i];
+          final isLastCharacter = i == command.length - 1;
+          if (isLastCharacter) {
             popDollarSignStack();
-          default:
-            dollarSignStack += command[i];
-            if (i == command.length - 1) {
-              popDollarSignStack();
-            }
-            continue;
+          }
+          continue;
         }
+        popDollarSignStack();
       }
 
       if (command[i] == '\$') {
