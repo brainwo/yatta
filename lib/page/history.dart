@@ -63,10 +63,8 @@ class _HistoryPageState extends State<HistoryPage> {
     if (filteredList == null) return;
     setState(() {
       filteredList = historyList
-          ?.where(
-            (final e) =>
-                e.toString().toLowerCase().contains(keyword.toLowerCase()),
-          )
+          ?.where((final e) =>
+              e.toString().toLowerCase().contains(keyword.toLowerCase()))
           .toList();
     });
 
