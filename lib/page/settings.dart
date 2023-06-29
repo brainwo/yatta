@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../intent.dart';
 import '../model/setting_options.dart';
-import '../widget/keyboard_navigation.dart';
 
 typedef _TextBoxValue = TextEditingController;
 typedef _NumberBoxValue = int;

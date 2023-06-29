@@ -41,7 +41,8 @@ class App extends StatelessWidget {
               const SearchBarFocusIntent(),
           const SingleActivator(LogicalKeyboardKey.keyL, control: true):
               const SearchBarFocusIntent(),
-          // TODO: currently typing `q` in a text field is impossible with this implementation
+          // TODO: currently typing `q` in a text field is impossible with this
+          // implementation
           // const SingleActivator(LogicalKeyboardKey.keyQ):
           // const NavigationPopIntent(),
           const SingleActivator(LogicalKeyboardKey.escape):
@@ -122,7 +123,8 @@ enum SearchBoxMode {
 }
 
 /// The main page of this application
-/// HomePage may navigate to `TourPage`, `PlaylistPage`, `HistoryPage`, or `SettingsPage`
+/// HomePage may navigate to `TourPage`, `PlaylistPage`, `HistoryPage`, or
+/// `SettingsPage`
 class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
