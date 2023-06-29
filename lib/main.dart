@@ -207,7 +207,6 @@ class _HomePageState extends State<HomePage> {
         content: FutureBuilder(
           future: searchResult,
           builder: (final context, final snapshot) {
-            print(resultList);
             if (snapshot.hasError) {
               return SearchError(errorText: snapshot.error.toString());
             }
