@@ -167,6 +167,11 @@ class SettingsPage extends StatelessWidget {
                     label: 'Brightness:',
                     value: BrightnessOptions.dark,
                   ),
+                  const SizedBox(height: 8),
+                  _SettingItem(
+                    label: 'Visual Density:',
+                    value: VisualDensityOptions.adaptive,
+                  ),
                   const SizedBox(height: 16),
                   const Divider(),
                   const Padding(
@@ -339,8 +344,13 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
                     IconButton(
                       icon: const Icon(FluentIcons.chrome_close),
                       onPressed: value.length > 1
-                          ? () => setState(
-                              () => value.remove((controller, focusNode)))
+                          ? () {
+                              setState(
+                                  () => value.remove((controller, focusNode)));
+                              widget.onChanged!(List<String>.of(
+                                      value.map((final e) => e.$1.text.trim()))
+                                  .toList() as T);
+                            }
                           : null,
                     ),
                   ],

@@ -1,7 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_api/youtube_api.dart';
 
 import '../../intent.dart';
+import '../helper.dart';
 import '../widget/keyboard_navigation.dart';
+import '../widget/list_items/list_item.dart';
 
 class PlaylistPage extends StatefulWidget {
   const PlaylistPage({super.key});
@@ -13,9 +17,11 @@ class PlaylistPage extends StatefulWidget {
 class _PlaylistPageState extends State<PlaylistPage> {
   final FocusNode searchBarFocus = FocusNode();
   late final Map<Type, Action<Intent>> _actionMap;
+  late Future<List<String>?> future;
 
   @override
   void initState() {
+    future = fetchHistory();
     super.initState();
 
     _actionMap = {
@@ -26,6 +32,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
         onInvoke: (final _) => _navigationPop(context),
       )
     };
+  }
+
+  Future<List<String>?> fetchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('playlist');
   }
 
   void _requestSearchBarFocus() {
@@ -50,15 +61,62 @@ class _PlaylistPageState extends State<PlaylistPage> {
         )),
         content: KeyboardNavigation(
           child: Center(
-            child: Column(
-              children: [
-                const Text('Playlist'),
-                Button(
-                  autofocus: true,
-                  onPressed: () {},
-                  child: const Text('Press Me'),
-                ),
-              ],
+            child: FutureBuilder(
+              future: future,
+              builder: (final context, final snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+
+                final historyList = snapshot.data!
+                    .map((final e) => YoutubeVideo.fromString(e))
+                    .toList();
+
+                final timeNow = DateTime.now();
+
+                return ListView.builder(
+                  itemCount: historyList.length,
+                  itemBuilder: (final context, final index) {
+                    final youtubeVideo =
+                        historyList[historyList.length - index - 1];
+                    final title = youtubeVideo.title
+                        .replaceAll('&amp;', '&')
+                        .replaceAll('&#39;', '\'')
+                        .replaceAll('&quot;', '"');
+
+                    final listItem = switch (youtubeVideo.kind) {
+                      'video' => ListItemVideo(
+                          title: title,
+                          channelTitle: youtubeVideo.channelTitle,
+                          description: youtubeVideo.description,
+                          duration: youtubeVideo.duration!,
+                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                          publishedAt: youtubeVideo.publishedAt,
+                          timeNow: timeNow,
+                        ),
+                      'channel' => ListItemChannel(
+                          channelTitle: youtubeVideo.channelTitle,
+                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                        ),
+                      'playlist' => ListItemPlaylist(
+                          title: title,
+                          channelTitle: youtubeVideo.channelTitle,
+                          description: youtubeVideo.description,
+                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                        ),
+                      _ => const SizedBox.shrink()
+                    };
+
+                    return ListItem(
+                        autofocus: index == 0,
+                        onClick: () async => PlayVideo.fromYoutubeVideo(
+                            youtubeVideo,
+                            fromHistory: true),
+                        url: youtubeVideo.url,
+                        child: listItem);
+                  },
+                );
+              },
             ),
           ),
         ),
