@@ -31,7 +31,21 @@ class SearchResult extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.all(8),
                 child: Button(
-                  child: const Text('Load more'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Load more'),
+                        if (!nextButtonEnabled) const SizedBox(width: 8),
+                        if (!nextButtonEnabled)
+                          const SizedBox.square(
+                            child: ProgressRing(),
+                            dimension: 12,
+                          ),
+                      ],
+                    ),
+                  ),
                   onPressed: nextButtonEnabled ? loadMoreCallback : null,
                 ),
               );
