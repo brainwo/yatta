@@ -37,8 +37,8 @@ class SearchResult extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Load more'),
-                        if (nextButtonEnabled) const SizedBox(width: 8),
-                        if (nextButtonEnabled)
+                        if (!nextButtonEnabled) const SizedBox(width: 8),
+                        if (!nextButtonEnabled)
                           const SizedBox.square(
                             child: ProgressRing(
                               strokeWidth: 2,
