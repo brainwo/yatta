@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -175,11 +176,16 @@ class PlayVideo {
       {final bool fromHistory = false}) async {
     final prefs = await SharedPreferences.getInstance();
 
-    if (!fromHistory) {
-      await prefs.setStringList('history', [
-        ...?prefs.getStringList('history'),
-        youtubeVideo.toString(),
-      ]);
+    if (!fromHistory && (prefs.getBool('enable_history') ?? true)) {
+      final historyQueue = Queue.of(
+        prefs.getStringList('history') ?? <String>[],
+      );
+      historyQueue.add(youtubeVideo.toString());
+      if (historyQueue.length > (prefs.getInt('history_to_keep') ?? 200)) {
+        historyQueue.removeFirst();
+      }
+
+      await prefs.setStringList('history', historyQueue.toList());
     }
 
     final commands = prefs.getStringList('video_play_commands');

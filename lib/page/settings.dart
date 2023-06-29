@@ -58,6 +58,12 @@ class SettingsPage extends StatelessWidget {
               const youtubeResultPerSearchKey = 'youtube_result_per_search';
               final youtubeResultPerSearchValue =
                   snapshot.data?.getInt(youtubeResultPerSearchKey);
+              const enableHistoryKey = 'enable_history';
+              final enableHistoryValue =
+                  snapshot.data?.getBool(enableHistoryKey);
+              const historyToKeepKey = 'history_to_keep';
+              final historyToKeepValue =
+                  snapshot.data?.getInt(historyToKeepKey);
 
               return ListView(
                 children: [
@@ -184,7 +190,21 @@ class SettingsPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _SettingItem(label: 'History to keep:', value: 200),
+                  _SettingItem(
+                    label: 'Enable History:',
+                    value: enableHistoryValue ?? true,
+                    onChanged: (final newValue) {
+                      snapshot.data?.setBool(enableHistoryKey, newValue);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _SettingItem(
+                    label: 'History to keep:',
+                    value: historyToKeepValue ?? 200,
+                    onChanged: (final newValue) {
+                      snapshot.data?.setInt(historyToKeepKey, newValue);
+                    },
+                  ),
                   const SizedBox(height: 8),
                   _SettingItem(
                       label: 'Remove history:',
