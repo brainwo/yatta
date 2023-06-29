@@ -18,10 +18,11 @@ class _HistoryPageState extends State<HistoryPage> {
   final FocusNode searchBarFocus = FocusNode();
   late final Map<Type, Action<Intent>> _actionMap;
   late Future<List<String>?> future;
+  List<YoutubeVideo>? filteredList;
+  List<YoutubeVideo>? historyList;
 
   @override
   void initState() {
-    future = fetchHistory();
     super.initState();
 
     _actionMap = {
@@ -32,11 +33,20 @@ class _HistoryPageState extends State<HistoryPage> {
         onInvoke: (final _) => _navigationPop(context),
       )
     };
+
+    fetchHistory();
   }
 
-  Future<List<String>?> fetchHistory() async {
+  Future<void> fetchHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('history');
+
+    setState(() {
+      historyList = prefs
+          .getStringList('history')
+          ?.map((final e) => YoutubeVideo.fromString(e))
+          .toList();
+      filteredList = historyList;
+    });
   }
 
   void _requestSearchBarFocus() {
@@ -49,8 +59,24 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
+  void _filterList(final String keyword) {
+    if (filteredList == null) return;
+    setState(() {
+      filteredList = historyList
+          ?.map((final e) => (e, e.toString()))
+          .where(
+            (final e) => e.$2.toLowerCase().contains(keyword.toLowerCase()),
+          )
+          .map((final e) => e.$1)
+          .toList();
+    });
+
+    print(filteredList);
+  }
+
   @override
   Widget build(final BuildContext context) {
+    final timeNow = DateTime.now();
     return Actions(
       actions: _actionMap,
       child: NavigationView(
@@ -58,63 +84,49 @@ class _HistoryPageState extends State<HistoryPage> {
             title: TextBox(
           focusNode: searchBarFocus,
           placeholder: 'Search from recent history',
+          onChanged: _filterList,
         )),
         content: KeyboardNavigation(
           child: Center(
-            child: FutureBuilder(
-              future: future,
-              builder: (final context, final snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox.shrink();
-                }
+            child: ListView.builder(
+              itemCount: filteredList?.length ?? 0,
+              itemBuilder: (final context, final index) {
+                final youtubeVideo =
+                    filteredList![filteredList!.length - index - 1];
+                final title = youtubeVideo.title
+                    .replaceAll('&amp;', '&')
+                    .replaceAll('&#39;', '\'')
+                    .replaceAll('&quot;', '"');
 
-                final historyList = snapshot.data!
-                    .map((final e) => YoutubeVideo.fromString(e))
-                    .toList();
+                final listItem = switch (youtubeVideo.kind) {
+                  'video' => ListItemVideo(
+                      title: title,
+                      channelTitle: youtubeVideo.channelTitle,
+                      description: youtubeVideo.description,
+                      duration: youtubeVideo.duration!,
+                      thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                      publishedAt: youtubeVideo.publishedAt,
+                      timeNow: timeNow,
+                    ),
+                  'channel' => ListItemChannel(
+                      channelTitle: youtubeVideo.channelTitle,
+                      thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                    ),
+                  'playlist' => ListItemPlaylist(
+                      title: title,
+                      channelTitle: youtubeVideo.channelTitle,
+                      description: youtubeVideo.description,
+                      thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                    ),
+                  _ => const SizedBox.shrink()
+                };
 
-                final timeNow = DateTime.now();
-
-                return ListView.builder(
-                  itemCount: historyList.length,
-                  itemBuilder: (final context, final index) {
-                    final youtubeVideo =
-                        historyList[historyList.length - index - 1];
-                    final title = youtubeVideo.title
-                        .replaceAll('&amp;', '&')
-                        .replaceAll('&#39;', '\'')
-                        .replaceAll('&quot;', '"');
-
-                    final listItem = switch (youtubeVideo.kind) {
-                      'video' => ListItemVideo(
-                          title: title,
-                          channelTitle: youtubeVideo.channelTitle,
-                          description: youtubeVideo.description,
-                          duration: youtubeVideo.duration!,
-                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
-                          publishedAt: youtubeVideo.publishedAt,
-                          timeNow: timeNow,
-                        ),
-                      'channel' => ListItemChannel(
-                          channelTitle: youtubeVideo.channelTitle,
-                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
-                        ),
-                      'playlist' => ListItemPlaylist(
-                          title: title,
-                          channelTitle: youtubeVideo.channelTitle,
-                          description: youtubeVideo.description,
-                          thumbnailUrl: youtubeVideo.thumbnail.medium.url,
-                        ),
-                      _ => const SizedBox.shrink()
-                    };
-
-                    return ListItem(
-                        autofocus: index == 0,
-                        onClick: () async => PlayVideo.fromYoutubeVideo(
-                            youtubeVideo,
-                            fromHistory: true),
-                        url: youtubeVideo.url,
-                        child: listItem);
-                  },
+                return ListItem(
+                  autofocus: index == 0,
+                  onClick: () async => PlayVideo.fromYoutubeVideo(youtubeVideo,
+                      fromHistory: true),
+                  url: youtubeVideo.url,
+                  child: listItem,
                 );
               },
             ),

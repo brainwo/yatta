@@ -82,7 +82,7 @@ class SettingsPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   _SettingItem(
                     label: 'On play:',
-                    value: OnPlayOptions.exit,
+                    value: OnPlayOptions.nothing,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
