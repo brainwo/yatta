@@ -1,17 +1,11 @@
 library search_result;
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import '../helper.dart';
-import '../locale/en_us.dart';
 import 'keyboard_navigation.dart';
-
-part 'list_items/list_item.dart';
-part 'list_items/channel.dart';
-part 'list_items/playlist.dart';
-part 'list_items/video.dart';
+import 'list_items/list_item.dart';
 
 class SearchResult extends StatelessWidget {
   const SearchResult({
@@ -28,39 +22,39 @@ class SearchResult extends StatelessWidget {
       child: ListView.builder(
           itemCount: result.length,
           itemBuilder: (final context, final index) {
-            final item = result[index];
-            final title = item.title
+            final youtubeVideo = result[index];
+            final title = youtubeVideo.title
                 .replaceAll('&amp;', '&')
                 .replaceAll('&#39;', '\'')
                 .replaceAll('&quot;', '"');
 
-            final listItem = switch (item.kind) {
-              'video' => _ListItemVideo(
+            final listItem = switch (youtubeVideo.kind) {
+              'video' => ListItemVideo(
                   title: title,
-                  channelTitle: item.channelTitle,
-                  description: item.description,
-                  duration: item.duration!,
-                  thumbnailUrl: item.thumbnail.medium.url,
-                  publishedAt: item.publishedAt,
+                  channelTitle: youtubeVideo.channelTitle,
+                  description: youtubeVideo.description,
+                  duration: youtubeVideo.duration!,
+                  thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                  publishedAt: youtubeVideo.publishedAt,
                   timeNow: timeNow,
                 ),
-              'channel' => _ListItemChannel(
-                  channelTitle: item.channelTitle,
-                  thumbnailUrl: item.thumbnail.medium.url,
+              'channel' => ListItemChannel(
+                  channelTitle: youtubeVideo.channelTitle,
+                  thumbnailUrl: youtubeVideo.thumbnail.medium.url,
                 ),
-              'playlist' => _ListItemPlaylist(
+              'playlist' => ListItemPlaylist(
                   title: title,
-                  channelTitle: item.channelTitle,
-                  description: item.description,
-                  thumbnailUrl: item.thumbnail.medium.url,
+                  channelTitle: youtubeVideo.channelTitle,
+                  description: youtubeVideo.description,
+                  thumbnailUrl: youtubeVideo.thumbnail.medium.url,
                 ),
               _ => const SizedBox.shrink()
             };
 
-            return _ListItem(
+            return ListItem(
                 autofocus: index == 0,
-                onClick: () async => playYouTubeVideo(item),
-                url: item.url,
+                onClick: () async => PlayVideo.fromYoutubeVideo(youtubeVideo),
+                url: youtubeVideo.url,
                 child: listItem);
           }),
     );

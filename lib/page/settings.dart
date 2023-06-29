@@ -11,6 +11,7 @@ typedef _NumberBoxValue = int;
 typedef _CheckBoxValue = bool;
 typedef _MultipleTextBoxValue = List<(TextEditingController, FocusNode)>;
 typedef _ToggleButtonValue = List<(String, bool)>;
+typedef _ButtonValue = Null;
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -156,6 +157,22 @@ class SettingsPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     child: Row(
                       children: [
+                        Icon(FluentIcons.color),
+                        SizedBox(width: 16),
+                        Text('Theme'),
+                      ],
+                    ),
+                  ),
+                  _SettingItem(
+                    label: 'Brightness:',
+                    value: BrightnessOptions.dark,
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    child: Row(
+                      children: [
                         Icon(FluentIcons.history),
                         SizedBox(width: 16),
                         Text('History and Saved Playlist'),
@@ -163,19 +180,14 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   _SettingItem(label: 'History to keep:', value: 200),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    child: Row(
-                      children: [
-                        Icon(FluentIcons.color),
-                        SizedBox(width: 16),
-                        Text('Theme'),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 8),
+                  _SettingItem(
+                      label: 'Remove history:',
+                      value: (),
+                      onChanged: (final _) {
+                        snapshot.data?.setStringList('history', []);
+                      }),
+                  const SizedBox(height: 16),
                 ],
               );
             }),
@@ -206,6 +218,7 @@ class _SettingItem<T> extends StatefulWidget {
             bool() => true,
             List<String>() => true,
             SettingOptions() => true,
+            () => true,
             _ => false,
           },
           'Unrecognized value type. Acceptable types are: String, int, bool, List<String>',
@@ -243,6 +256,8 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
           size,
           (final index) => (names[index], index == selectedIndex),
         );
+      default:
+        initialValue = Null;
     }
     super.initState();
   }
@@ -313,9 +328,9 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
                         controller: controller,
                         maxLines: widget.multiline ? null : 1,
                         onChanged: (final _) {
-                          widget.onChanged!(
-                              List<String>.of(value.map((final e) => e.$1.text))
-                                  .toList() as T);
+                          widget.onChanged!(List<String>.of(
+                                  value.map((final e) => e.$1.text.trim()))
+                              .toList() as T);
                           setState(() {});
                         },
                       ),
@@ -387,6 +402,20 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
     );
   }
 
+  Widget _button() {
+    return Expanded(
+      child: SizedBox(
+        height: 32,
+        child: Button(
+          onPressed: () {
+            widget.onChanged!(() as T);
+          },
+          child: const Center(child: Text('Clear history')),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(final BuildContext context) {
     final value = initialValue;
@@ -414,7 +443,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
             _CheckBoxValue() => _checkBox(value),
             _MultipleTextBoxValue() => _multipleTextBox(value),
             _ToggleButtonValue() => _toggleButtons(value),
-            _ => const SizedBox.shrink(),
+            _ => _button(),
           },
           if (widget.sensitive) ...[
             const SizedBox(width: 8),

@@ -1,10 +1,10 @@
-part of search_result;
+part of list_item;
 
-class _ListItemChannel extends StatelessWidget {
+class ListItemChannel extends StatelessWidget {
   final String channelTitle;
   final String? thumbnailUrl;
 
-  const _ListItemChannel({
+  const ListItemChannel({
     required this.channelTitle,
     final Key? key,
     this.thumbnailUrl,

@@ -1,6 +1,6 @@
-part of search_result;
+part of list_item;
 
-class _ListItemVideo extends StatelessWidget {
+class ListItemVideo extends StatelessWidget {
   final String title;
   final String channelTitle;
   final String? description;
@@ -9,7 +9,7 @@ class _ListItemVideo extends StatelessWidget {
   final String duration;
   final DateTime timeNow;
 
-  const _ListItemVideo({
+  const ListItemVideo({
     required this.title,
     required this.channelTitle,
     required this.description,

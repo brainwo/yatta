@@ -1,12 +1,21 @@
-part of search_result;
+library list_item;
 
-class _ListItem extends StatefulWidget {
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
+import '../../helper.dart';
+import '../../locale/en_us.dart';
+
+part 'channel.dart';
+part 'playlist.dart';
+part 'video.dart';
+
+class ListItem extends StatefulWidget {
   final void Function() onClick;
   final Widget child;
   final String url;
   final bool autofocus;
 
-  const _ListItem({
+  const ListItem({
     required this.onClick,
     required this.child,
     required this.url,
@@ -15,10 +24,10 @@ class _ListItem extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<_ListItem> createState() => _ListItemState();
+  State<ListItem> createState() => _ListItemState();
 }
 
-class _ListItemState extends State<_ListItem> {
+class _ListItemState extends State<ListItem> {
   bool _focused = false;
   late final Map<Type, Action<Intent>> _actionMap;
 

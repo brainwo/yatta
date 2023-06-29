@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
@@ -66,47 +65,121 @@ String timeSince(final DateTime startTime, final DateTime endTime) {
   return buff;
 }
 
-/// Play video from a given [String] of url
-Future<void> playVideoFromUrl(final String url) async {
-  final prefs = await SharedPreferences.getInstance();
+class PlayVideo {
+  static List<String> _parseCommand(
+      final Object fromObject, final String command) {
+    late final String url;
+    late final String title;
+    late final String type;
+    late final String icon;
 
-  final commands = prefs.getStringList('video_play_commands');
+    switch (fromObject) {
+      case YoutubeVideo():
+        url = fromObject.url;
+        title = fromObject.title;
+        type = fromObject.kind ?? 'video';
+        icon = fromObject.thumbnail.medium.url ?? '';
+      case String():
+        url = fromObject;
+        title = '';
+        type = 'url';
+        icon = '';
+      default:
+        throw Exception('Unexpected fromObject type');
+    }
 
-  if (commands == null) return;
+    var buff = <String>[''];
+    var inQuotationMark = false;
+    var dollarSignStack = '';
 
-  for (final command in commands) {
-    final parsedCommand = command.split(' ').map((final e) {
-      if (e == '\$url') return url;
-      return e;
-    }).toList();
-
-    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
-  }
-}
-
-Future<void> playYouTubeVideo(final YoutubeVideo youtubeVideo) async {
-  final prefs = await SharedPreferences.getInstance();
-
-  await prefs.setStringList('history', [
-    ...?prefs.getStringList('history'),
-    youtubeVideo.toString(),
-  ]);
-
-  final commands = prefs.getStringList('video_play_commands');
-
-  if (commands == null) return;
-
-  for (final command in commands) {
-    final parsedCommand = command.split(' ').map((final e) {
-      return switch (e) {
-        '\$url' => youtubeVideo.url,
-        '\$title' => '"${youtubeVideo.title}"',
-        final e => e
+    final popDollarSignStack = () {
+      buff.last += switch (dollarSignStack) {
+        '\$url' => url,
+        '\$title' => title,
+        '\$type' => type,
+        '\$icon' => icon,
+        final _ => '',
       };
-    }).toList();
+      dollarSignStack = '';
+    };
 
-    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+    for (var i = 0; i < command.length; i++) {
+      if (dollarSignStack.isNotEmpty) {
+        switch (command[i]) {
+          case '\$':
+          case ' ':
+          case '"':
+            popDollarSignStack();
+          default:
+            dollarSignStack += command[i];
+            if (i == command.length - 1) {
+              popDollarSignStack();
+            }
+            continue;
+        }
+      }
+
+      if (command[i] == '\$') {
+        dollarSignStack += '\$';
+        continue;
+      }
+
+      if (command[i] == ' ' && !inQuotationMark) {
+        buff = [...buff, ''];
+        continue;
+      }
+
+      if (command[i] == '"') {
+        inQuotationMark = !inQuotationMark;
+        continue;
+      }
+
+      buff.last += command[i];
+    }
+
+    print(buff);
+
+    return buff;
   }
 
-  // await SystemNavigator.pop();
+  static Future<void> fromUrl(final String url) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setStringList('history', [
+      ...?prefs.getStringList('history'),
+      // TODO
+    ]);
+
+    final commands = prefs.getStringList('video_play_commands');
+
+    if (commands == null) return;
+
+    for (final command in commands) {
+      final parsedCommand = _parseCommand(url, command);
+
+      await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+    }
+  }
+
+  static Future<void> fromYoutubeVideo(final YoutubeVideo youtubeVideo,
+      {final bool fromHistory = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!fromHistory) {
+      await prefs.setStringList('history', [
+        ...?prefs.getStringList('history'),
+        youtubeVideo.toString(),
+      ]);
+    }
+
+    final commands = prefs.getStringList('video_play_commands');
+
+    if (commands == null) return;
+
+    for (final command in commands) {
+      final parsedCommand = _parseCommand(youtubeVideo, command);
+
+      await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+    }
+  }
 }

@@ -21,3 +21,22 @@ enum OnPlayOptions implements SettingOptions {
   @override
   int currentIndex() => super.index;
 }
+
+
+enum BrightnessOptions implements SettingOptions {
+  light,
+  dark,
+  system;
+  
+
+  @override
+  int size() => BrightnessOptions.values.length;
+
+  @override
+  List<String> names() => BrightnessOptions.values
+      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+      .toList();
+
+  @override
+  int currentIndex() => super.index;
+}

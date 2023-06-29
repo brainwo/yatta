@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _handleTopBar(final String query) async {
     if (searchBoxMode == SearchBoxMode.play) {
-      await playVideoFromUrl(query);
+      await PlayVideo.fromUrl(query);
       return;
     }
 
@@ -210,10 +210,12 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      searchResult = youtubeApi.search(query,
-          type: searchBoxMode == SearchBoxMode.all
-              ? 'video,channel,playlist'
-              : searchBoxMode.name);
+      searchResult = youtubeApi.search(
+        query,
+        type: searchBoxMode == SearchBoxMode.all
+            ? 'video,channel,playlist'
+            : searchBoxMode.name,
+      );
     });
   }
 
