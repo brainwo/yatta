@@ -141,6 +141,8 @@ class _HomePageState extends State<HomePage> {
 
   final FocusNode searchBarFocus = FocusNode();
   late final Map<Type, Action<Intent>> _actionMap;
+  late List<YoutubeVideo> resultList;
+  late bool nextButtonEnabled;
 
   @override
   void initState() {
@@ -307,12 +309,32 @@ class _HomePageState extends State<HomePage> {
               return SearchError(errorText: snapshot.error.toString());
             }
 
+            if (snapshot.hasData) {
+              resultList = snapshot.data!;
+              nextButtonEnabled = true;
+            }
+
             return switch (snapshot.connectionState) {
-              ConnectionState.done => SearchResult(result: snapshot.data!),
               ConnectionState.none => const WelcomeMessage(),
               ConnectionState.waiting ||
               ConnectionState.active =>
-                const Center(child: ProgressBar())
+                const Center(child: ProgressBar()),
+              ConnectionState.done => StatefulBuilder(
+                  builder: (final context, final StateSetter setState) {
+                    return SearchResult(
+                      result: resultList,
+                      nextButtonEnabled: nextButtonEnabled,
+                      loadMoreCallback: () async {
+                        setState(() => nextButtonEnabled = false);
+                        final nextPage = await youtubeApi.nextPage();
+                        setState(() {
+                          resultList = [...resultList, ...nextPage];
+                          nextButtonEnabled = true;
+                        });
+                      },
+                    );
+                  },
+                ),
             };
           },
         ),
