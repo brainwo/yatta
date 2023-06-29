@@ -20,7 +20,7 @@ dependencies:
 dev_dependencies:
   extra_pedantic:
     git:
-      url: git@github.com:modulovalue/extra_pedantic.git
+      url: https://github.com/modulovalue/extra_pedantic.git
       path: extra_pedantic
   flutter_test:
     sdk: flutter

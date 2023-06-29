@@ -44,10 +44,11 @@ packages:
   extra_pedantic:
     dependency: "direct dev"
     description:
-      name: extra_pedantic
-      sha256: "867e283c07678233366c7cd5e7b9a33e1ecb7a39f91700410693eb9a5061ca7b"
-      url: "https://pub.dev"
-    source: hosted
+      path: extra_pedantic
+      ref: HEAD
+      resolved-ref: "1c6c3d127ad5f637247d45be0436f18b261ae43d"
+      url: "https://github.com/modulovalue/extra_pedantic.git"
+    source: git
     version: "3.0.0"
   fake_async:
     dependency: transitive
