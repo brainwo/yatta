@@ -137,8 +137,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late YoutubeApi youtubeApi;
   String noResultString = AppString.noSearchQuery;
-  SearchBoxMode searchBoxMode = SearchBoxMode.all;
-  TextEditingController textBoxController = TextEditingController();
   Future<List<YoutubeVideo>>? searchResult;
 
   final FocusNode searchBarFocus = FocusNode();
@@ -149,41 +147,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    textBoxController.addListener(() {
-      if (searchBoxMode == SearchBoxMode.all) {
-        setState(() {
-          switch (textBoxController.text) {
-            case searchModeVideoShortcut:
-              searchBoxMode = SearchBoxMode.video;
-              textBoxController.text = '';
-            case searchModeChannelShortcut:
-              searchBoxMode = SearchBoxMode.channel;
-              textBoxController.text = '';
-            case searchModePlaylistShortcut:
-              searchBoxMode = SearchBoxMode.playlist;
-              textBoxController.text = '';
-          }
-        });
-      }
-
-      final isUrl = textBoxController.text.startsWith('https://') ||
-          textBoxController.text.startsWith('www.youtube.com') ||
-          textBoxController.text.startsWith('youtube.com') ||
-          textBoxController.text.startsWith('youtu.be');
-
-      if (isUrl) {
-        setState(() {
-          searchBoxMode = SearchBoxMode.play;
-        });
-        return;
-      }
-
-      if (searchBoxMode == SearchBoxMode.play) {
-        setState(() {
-          searchBoxMode = SearchBoxMode.all;
-        });
-      }
-    });
 
     _actionMap = {
       SearchBarFocusIntent: CallbackAction<Intent>(
@@ -192,7 +155,12 @@ class _HomePageState extends State<HomePage> {
     };
   }
 
-  Future<void> _handleTopBar(final String query) async {
+  void _requestSearchBarFocus() {
+    searchBarFocus.requestFocus();
+  }
+
+  Future<void> _handleTopBar(
+      final SearchBoxMode searchBoxMode, final String query) async {
     if (searchBoxMode == SearchBoxMode.play) {
       await PlayVideo.fromUrl(query);
       return;
@@ -224,77 +192,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _requestSearchBarFocus() {
-    searchBarFocus.requestFocus();
-  }
-
-  Widget topBar() {
-    return Row(
-      children: [
-        if (searchBoxMode.isSearchCategory)
-          _SearchModeIndicator(searchBoxMode: searchBoxMode),
-        Expanded(
-          child: KeyboardListener(
-            focusNode: FocusNode(
-              skipTraversal: true,
-              onKey: (final _, final event) {
-                final removeSearchCategory = searchBoxMode.isSearchCategory &&
-                    event.isKeyPressed(LogicalKeyboardKey.backspace) &&
-                    textBoxController.text == '';
-
-                if (removeSearchCategory) {
-                  setState(() {
-                    searchBoxMode = SearchBoxMode.all;
-                  });
-                  return KeyEventResult.handled;
-                }
-
-                return KeyEventResult.ignored;
-              },
-            ),
-            child: TextBox(
-              focusNode: searchBarFocus,
-              autocorrect: false,
-              placeholder: searchBoxMode.isSearchCategory
-                  ? AppString.searchPlaceholder
-                  : AppString.searchPlaceholderAll,
-              controller: textBoxController,
-              onSubmitted: _handleTopBar,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: searchButton(),
-        )
-      ],
-    );
-  }
-
-  Widget searchButton() {
-    return Tooltip(
-      message: searchBoxMode == SearchBoxMode.play
-          ? 'Play from URL'
-          : 'Search for videos',
-      useMousePosition: false,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Button(
-          focusable: false,
-          child: Center(
-            child: Icon(
-              searchBoxMode == SearchBoxMode.play
-                  ? FluentIcons.play
-                  : FluentIcons.search,
-            ),
-          ),
-          onPressed: () => _handleTopBar(textBoxController.text),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(final BuildContext context) {
     return Actions(
@@ -302,11 +199,15 @@ class _HomePageState extends State<HomePage> {
       child: NavigationView(
         appBar: NavigationAppBar(
           automaticallyImplyLeading: false,
-          title: topBar(),
+          title: _TopBar(
+            onSearch: _handleTopBar,
+            focusNode: searchBarFocus,
+          ),
         ),
         content: FutureBuilder(
           future: searchResult,
           builder: (final context, final snapshot) {
+            print(resultList);
             if (snapshot.hasError) {
               return SearchError(errorText: snapshot.error.toString());
             }
@@ -341,6 +242,140 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _TopBar extends StatefulWidget {
+  final void Function(SearchBoxMode, String) onSearch;
+  final FocusNode focusNode;
+
+  const _TopBar({
+    required this.onSearch,
+    required this.focusNode,
+  });
+
+  @override
+  State<_TopBar> createState() => _TopBarState();
+}
+
+class _TopBarState extends State<_TopBar> {
+  SearchBoxMode searchBoxMode = SearchBoxMode.all;
+  TextEditingController textBoxController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textBoxController.addListener(() {
+      if (searchBoxMode == SearchBoxMode.all) {
+        switch (textBoxController.text) {
+          case searchModeVideoShortcut:
+            setState(() {
+              searchBoxMode = SearchBoxMode.video;
+              textBoxController.text = '';
+            });
+          case searchModeChannelShortcut:
+            setState(() {
+              searchBoxMode = SearchBoxMode.channel;
+              textBoxController.text = '';
+            });
+          case searchModePlaylistShortcut:
+            setState(() {
+              searchBoxMode = SearchBoxMode.playlist;
+              textBoxController.text = '';
+            });
+        }
+      }
+
+      final isUrl = textBoxController.text.startsWith('https://') ||
+          textBoxController.text.startsWith('www.youtube.com') ||
+          textBoxController.text.startsWith('youtube.com') ||
+          textBoxController.text.startsWith('youtu.be');
+
+      if (isUrl) {
+        setState(() {
+          searchBoxMode = SearchBoxMode.play;
+        });
+        return;
+      }
+
+      if (searchBoxMode == SearchBoxMode.play) {
+        setState(() {
+          searchBoxMode = SearchBoxMode.all;
+        });
+      }
+    });
+  }
+
+  Widget searchButton() {
+    return Tooltip(
+      message: searchBoxMode == SearchBoxMode.play
+          ? 'Play from URL'
+          : 'Search for videos',
+      useMousePosition: false,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Button(
+          focusable: false,
+          child: Center(
+            child: Icon(
+              searchBoxMode == SearchBoxMode.play
+                  ? FluentIcons.play
+                  : FluentIcons.search,
+            ),
+          ),
+          onPressed: () => _handleTopBar(textBoxController.text),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleTopBar(final String query) async {
+    widget.onSearch(searchBoxMode, query);
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    return Row(
+      children: [
+        if (searchBoxMode.isSearchCategory)
+          _SearchModeIndicator(searchBoxMode: searchBoxMode),
+        Expanded(
+          child: KeyboardListener(
+            focusNode: FocusNode(
+              skipTraversal: true,
+              onKey: (final _, final event) {
+                final removeSearchCategory = searchBoxMode.isSearchCategory &&
+                    event.isKeyPressed(LogicalKeyboardKey.backspace) &&
+                    textBoxController.text == '';
+
+                if (removeSearchCategory) {
+                  setState(() {
+                    searchBoxMode = SearchBoxMode.all;
+                  });
+                  return KeyEventResult.handled;
+                }
+
+                return KeyEventResult.ignored;
+              },
+            ),
+            child: TextBox(
+              focusNode: widget.focusNode,
+              autocorrect: false,
+              placeholder: searchBoxMode.isSearchCategory
+                  ? AppString.searchPlaceholder
+                  : AppString.searchPlaceholderAll,
+              controller: textBoxController,
+              onSubmitted: _handleTopBar,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: searchButton(),
+        )
+      ],
     );
   }
 }
