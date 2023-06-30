@@ -52,7 +52,7 @@ class ListItemVideo extends StatelessWidget {
               style: const TextStyle(fontSize: 12),
             ),
           ),
-        )
+        ),
       ],
     );
   }
