@@ -51,9 +51,10 @@ class ListItemPlaylist extends StatelessWidget {
                 channelTitle,
                 style: const TextStyle(fontWeight: FontWeight.w300),
               ),
-              if (description!.isNotEmpty)
+              if (description?.isNotEmpty ?? false)
                 Text(
                   description!,
+                  maxLines: 2,
                   style: const TextStyle(fontWeight: FontWeight.w300),
                 ),
               const SizedBox(height: 8),
