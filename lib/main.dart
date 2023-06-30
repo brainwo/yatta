@@ -67,6 +67,13 @@ class App extends StatelessWidget {
               ),
             ),
           ),
+          infoBarTheme: InfoBarThemeData(
+            decoration: (final _) {
+              return BoxDecoration(
+                color: appTheme.background,
+              );
+            },
+          ),
           tooltipTheme: TooltipThemeData(
             preferBelow: true,
             showDuration: Duration.zero,

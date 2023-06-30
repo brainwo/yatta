@@ -85,7 +85,8 @@ class SearchResult extends StatelessWidget {
 
             return ListItem(
                 autofocus: index == 0,
-                onClick: () async => PlayVideo.fromYoutubeVideo(youtubeVideo),
+                onPlay: () async => PlayVideo.fromYoutubeVideo(youtubeVideo),
+                onSave: () {},
                 url: youtubeVideo.url,
                 child: listItem);
           }),

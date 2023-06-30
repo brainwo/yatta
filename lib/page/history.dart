@@ -118,8 +118,9 @@ class _HistoryPageState extends State<HistoryPage> {
 
                 return ListItem(
                   autofocus: index == 0,
-                  onClick: () async => PlayVideo.fromYoutubeVideo(youtubeVideo,
+                  onPlay: () async => PlayVideo.fromYoutubeVideo(youtubeVideo,
                       fromHistory: true),
+                  onSave: () {},
                   url: youtubeVideo.url,
                   child: listItem,
                 );
