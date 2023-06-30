@@ -109,9 +109,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
                     return ListItem(
                         autofocus: index == 0,
-                        onClick: () async => PlayVideo.fromYoutubeVideo(
+                        onPlay: () async => PlayVideo.fromYoutubeVideo(
                             youtubeVideo,
                             fromHistory: true),
+                        onSave: () {},
                         url: youtubeVideo.url,
                         child: listItem);
                   },
