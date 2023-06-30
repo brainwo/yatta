@@ -67,8 +67,6 @@ class _HistoryPageState extends State<HistoryPage> {
               e.toString().toLowerCase().contains(keyword.toLowerCase()))
           .toList();
     });
-
-    print(filteredList);
   }
 
   @override
