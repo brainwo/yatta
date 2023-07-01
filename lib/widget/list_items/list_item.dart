@@ -70,7 +70,7 @@ class _ListItemState extends State<ListItem> {
       mouseCursor: SystemMouseCursors.click,
       child: ColoredBox(
         color: switch ((_focused, _hovered)) {
-          (true, _) => FluentTheme.of(context).activeColor,
+          (true, _) => FluentTheme.of(context).accentColor,
           (_, true) => Colors.white.withOpacity(0.1),
           _ => Colors.transparent,
         },
