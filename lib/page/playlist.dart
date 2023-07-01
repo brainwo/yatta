@@ -15,31 +15,21 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  static final FocusNode searchBarFocus = FocusNode();
-  static late final Map<Type, Action<Intent>> _actionMap;
-  static late Future<List<String>?> future;
+  final FocusNode searchBarFocus = FocusNode();
+  late final Map<Type, Action<Intent>> _actionMap = {
+    SearchBarFocusIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => _requestSearchBarFocus(),
+    ),
+    NavigationPopIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => _navigationPop(context),
+    )
+  };
+  late Future<List<String>> future = SharedPreferences.getInstance()
+      .then((final prefs) => prefs.getStringList('playlist') ?? []);
 
   @override
   void initState() {
     super.initState();
-
-    _actionMap = {
-      SearchBarFocusIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => _requestSearchBarFocus(),
-      ),
-      NavigationPopIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => _navigationPop(context),
-      )
-    };
-
-    WidgetsBinding.instance.addPostFrameCallback((final _) async {
-      future = fetchHistory();
-    });
-  }
-
-  Future<List<String>?> fetchHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('playlist');
   }
 
   void _requestSearchBarFocus() {
@@ -79,10 +69,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   itemBuilder: (final context, final index) {
                     final youtubeVideo =
                         historyList[historyList.length - index - 1];
-                    final title = youtubeVideo.title
-                        .replaceAll('&amp;', '&')
-                        .replaceAll('&#39;', '\'')
-                        .replaceAll('&quot;', '"');
+                    final title = youtubeVideo.title.parseHtmlEntities();
 
                     final listItem = switch (youtubeVideo.kind) {
                       'video' => ListItemVideo(

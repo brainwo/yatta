@@ -18,23 +18,20 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   final FocusNode searchBarFocus = FocusNode();
-  late final Map<Type, Action<Intent>> _actionMap;
-  late Future<List<String>?> future;
   List<YoutubeVideo>? filteredList;
   List<YoutubeVideo>? historyList;
+  late final Map<Type, Action<Intent>> _actionMap = {
+    SearchBarFocusIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => _requestSearchBarFocus(),
+    ),
+    NavigationPopIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => _navigationPop(context),
+    )
+  };
 
   @override
   void initState() {
     super.initState();
-
-    _actionMap = {
-      SearchBarFocusIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => _requestSearchBarFocus(),
-      ),
-      NavigationPopIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => _navigationPop(context),
-      )
-    };
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       await fetchHistory();
@@ -53,14 +50,11 @@ class _HistoryPageState extends State<HistoryPage> {
     });
   }
 
-  void _requestSearchBarFocus() {
-    searchBarFocus.requestFocus();
-  }
+  void _requestSearchBarFocus() => searchBarFocus.requestFocus();
 
   void _navigationPop(final BuildContext context) {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
+    if (!Navigator.of(context).canPop()) return;
+    Navigator.of(context).pop();
   }
 
   void _filterList(final String keyword) {
@@ -92,10 +86,7 @@ class _HistoryPageState extends State<HistoryPage> {
               itemBuilder: (final context, final index) {
                 final youtubeVideo =
                     filteredList![filteredList!.length - index - 1];
-                final title = youtubeVideo.title
-                    .replaceAll('&amp;', '&')
-                    .replaceAll('&#39;', '\'')
-                    .replaceAll('&quot;', '"');
+                final title = youtubeVideo.title.parseHtmlEntities();
 
                 final listItem = switch (youtubeVideo.kind) {
                   'video' => ListItemVideo(
