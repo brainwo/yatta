@@ -155,13 +155,13 @@ Future<void> playFromYoutubeVideo(final YoutubeVideo youtubeVideo,
 
 List<String> parseCommand(
   final String command, {
-  required final String url,
-  required final String title,
-  required final String description,
-  required final String type,
-  required final String preview,
-  required final String thumbnail,
-  required final String icon,
+  final String url = '',
+  final String title = '',
+  final String description = '',
+  final String type = '',
+  final String preview = '',
+  final String thumbnail = '',
+  final String icon = '',
 }) {
   var buff = <String>[''];
   var inQuotationMark = false;
