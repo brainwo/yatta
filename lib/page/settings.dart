@@ -205,8 +205,8 @@ class SettingsPage extends StatelessWidget {
                   ),
                   _SettingItem(
                     key: UniqueKey(),
-                    label: 'Enable History:',
-                    value: enableHistoryValue ?? true,
+                    label: 'Pause history:',
+                    value: !(enableHistoryValue ?? true),
                     onChanged: (final newValue) async {
                       await snapshot.data?.setBool(enableHistoryKey, newValue);
                     },
