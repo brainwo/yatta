@@ -6,10 +6,11 @@ abstract class SettingOptions {
 
 /// Application behavior when a content is played.
 ///
-/// `nothing`: do nothing
-/// `minimize`: app window is minimized, may not work on some desktop environment
-/// `tray`: close app window and leave the system tray available
-/// `exit`: kill app entirely, will not leave the system tray
+/// - `nothing`: do nothing
+/// - `minimize`: app window is minimized, may not work on some desktop
+/// environment
+/// - `tray`: close app window and leave the system tray available
+/// - `exit`: kill app entirely, will not leave the system tray
 enum OnPlayOptions implements SettingOptions {
   nothing,
   minimize,

@@ -7,3 +7,4 @@ linter:
     omit_local_variable_types: true
     avoid_classes_with_only_static_members: true
     prefer_constructors_over_static_methods: true
+    lines_longer_than_80_chars: true
