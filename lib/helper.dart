@@ -98,59 +98,14 @@ class PlayVideo {
         throw Exception('Unexpected fromObject type');
     }
 
-    var buff = <String>[''];
-    var inQuotationMark = false;
-    var dollarSignStack = '';
-
-    final popDollarSignStack = () {
-      buff.last += switch (dollarSignStack) {
-        '\$url' => url,
-        '\$title' => title,
-        '\$description' => description,
-        '\$type' => type,
-        '\$preview' => preview,
-        '\$thumbnail' => thumbnail,
-        '\$icon' => icon,
-        final _ => '',
-      };
-      dollarSignStack = '';
-    };
-
-    for (var i = 0; i < command.length; i++) {
-      if (dollarSignStack.isNotEmpty) {
-        if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-            .contains(RegExp(command[i]))) {
-          dollarSignStack += command[i];
-          final isLastCharacter = i == command.length - 1;
-          if (isLastCharacter) {
-            popDollarSignStack();
-          }
-          continue;
-        }
-        popDollarSignStack();
-      }
-
-      if (command[i] == '\$') {
-        dollarSignStack += '\$';
-        continue;
-      }
-
-      if (command[i] == ' ' && !inQuotationMark) {
-        buff = [...buff, ''];
-        continue;
-      }
-
-      if (command[i] == '"') {
-        inQuotationMark = !inQuotationMark;
-        continue;
-      }
-
-      buff.last += command[i];
-    }
-
-    print(buff);
-
-    return buff;
+    return parseCommand(command,
+        url: url,
+        title: title,
+        description: description,
+        type: type,
+        preview: preview,
+        thumbnail: thumbnail,
+        icon: icon);
   }
 
   static Future<void> fromUrl(final String url) async {
@@ -199,4 +154,65 @@ class PlayVideo {
       await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
     }
   }
+}
+
+List<String> parseCommand(
+  final String command, {
+  required final String url,
+  required final String title,
+  required final String description,
+  required final String type,
+  required final String preview,
+  required final String thumbnail,
+  required final String icon,
+}) {
+  var buff = <String>[''];
+  var inQuotationMark = false;
+  var dollarSignStack = '';
+
+  final popDollarSignStack = () {
+    buff.last += switch (dollarSignStack) {
+      '\$url' => url,
+      '\$title' => title,
+      '\$description' => description,
+      '\$type' => type,
+      '\$preview' => preview,
+      '\$thumbnail' => thumbnail,
+      '\$icon' => icon,
+      final _ => '',
+    };
+    dollarSignStack = '';
+  };
+
+  for (var i = 0; i < command.length; i++) {
+    if (dollarSignStack.isNotEmpty) {
+      if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+          .contains(command[i])) {
+        dollarSignStack += command[i];
+        final isLastCharacter = i == command.length - 1;
+        if (isLastCharacter) {
+          popDollarSignStack();
+        }
+        continue;
+      }
+      popDollarSignStack();
+    }
+
+    if (command[i] == '\$') {
+      dollarSignStack += '\$';
+      continue;
+    }
+
+    if (command[i] == ' ' && !inQuotationMark) {
+      buff = [...buff, ''];
+      continue;
+    }
+
+    if (command[i] == '"') {
+      inQuotationMark = !inQuotationMark;
+    }
+
+    buff.last += command[i];
+  }
+  return buff;
 }
