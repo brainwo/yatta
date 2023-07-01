@@ -4,3 +4,4 @@
 #   - type: description of what the short-form "type" means
 scopes:
   i18n: stuffs related to internationalization
+  theme: colors, text style, etc
