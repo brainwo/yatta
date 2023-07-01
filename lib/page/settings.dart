@@ -448,6 +448,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
             selectedColor: Colors.white,
             fillColor: FluentTheme.of(context).accentColor.lighter,
             borderRadius: BorderRadius.circular(4),
+            splashColor: Colors.transparent,
           );
         },
       ),
