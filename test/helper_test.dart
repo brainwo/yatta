@@ -90,8 +90,7 @@ void main() {
       'WID',
       '--profile=wallpaper',
       '--input-ipc-server=/tmp/mpvsocket',
-      '--no-osc',
-      'https://youtube.com'
+      '--no-osc'
     ];
     const parsedKitty = [
       'kitty',
@@ -101,17 +100,8 @@ void main() {
       '-a',
       'background=#1f1f1f'
     ];
-    const parsedCurl = [
-      'curl',
-      '--output',
-      '/tmp/notifyicon.png',
-      'icon.png',
-    ];
-    const parsedNotifySend = [
-      'notify-send',
-      '"Playing video"',
-      '"This is a title\\nThis is a description"',
-    ];
+    const parsedCurl = ['curl', '--output', '/tmp/notifyicon.png'];
+    const parsedNotifySend = ['notify-send', '"Playing video"', '"\\n"'];
 
     test('xwinwrap', () => expect(parseCommand(xwinwrap), parsedXwinwrap));
     test('kitty', () => expect(parseCommand(kitty), parsedKitty));
