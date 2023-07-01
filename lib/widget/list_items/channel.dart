@@ -1,4 +1,4 @@
-part of list_item;
+part of 'list_item.dart';
 
 class ListItemChannel extends StatelessWidget {
   final String channelTitle;

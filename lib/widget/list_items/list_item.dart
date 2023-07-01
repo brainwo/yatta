@@ -115,7 +115,7 @@ class _ListItemState extends State<ListItem> {
           _focusNode.requestFocus();
           setState(() => _showOptions = !_showOptions);
         },
-        onSecondaryTapUp: (final d) {
+        onSecondaryTapUp: (final d) async {
           _focusNode.requestFocus();
 
           final targetContext = context;
@@ -125,7 +125,7 @@ class _ListItemState extends State<ListItem> {
             ancestor: Navigator.of(context).context.findRenderObject(),
           );
 
-          contextController.showFlyout<dynamic>(
+          await contextController.showFlyout<dynamic>(
             barrierColor: Colors.transparent,
             position: position,
             builder: (final context) {
@@ -180,23 +180,25 @@ class _ListItemState extends State<ListItem> {
                   _ContextButtons(
                     icon: FluentIcons.copy,
                     title: 'Copy URL',
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: widget.url));
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: widget.url));
 
-                      displayInfoBar(
-                        context,
-                        builder: (final context, final close) {
-                          return InfoBar(
-                            title: const Text('Copied'),
-                            content: const Text('URL copied to clipboard'),
-                            action: IconButton(
-                              icon: const Icon(FluentIcons.clear),
-                              onPressed: close,
-                            ),
-                            severity: InfoBarSeverity.info,
-                          );
-                        },
-                      );
+                      if (context.mounted) {
+                        await displayInfoBar(
+                          context,
+                          builder: (final context, final close) {
+                            return InfoBar(
+                              title: const Text('Copied'),
+                              content: const Text('URL copied to clipboard'),
+                              action: IconButton(
+                                icon: const Icon(FluentIcons.clear),
+                                onPressed: close,
+                              ),
+                              severity: InfoBarSeverity.info,
+                            );
+                          },
+                        );
+                      }
                     },
                   ),
                 ],
@@ -217,7 +219,6 @@ class _ContextButtons extends StatefulWidget {
     required this.icon,
     required this.title,
     required this.onPressed,
-    super.key,
   });
 
   @override
@@ -251,6 +252,7 @@ class _ContextButtonsState extends State<_ContextButtons> {
     });
   }
 
+  @override
   Widget build(final BuildContext context) {
     return Expanded(
       child: GestureDetector(

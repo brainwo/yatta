@@ -66,93 +66,90 @@ String timeSince(final DateTime startTime, final DateTime endTime) {
   return buff;
 }
 
-class PlayVideo {
-  static List<String> _parseCommand(
-      final Object fromObject, final String command) {
-    late final String url;
-    late final String title;
-    late final String description;
-    late final String type;
-    late final String preview;
-    late final String thumbnail;
-    late final String icon;
+List<String> _defaultData(final Object fromObject, final String command) {
+  late final String url;
+  late final String title;
+  late final String description;
+  late final String type;
+  late final String preview;
+  late final String thumbnail;
+  late final String icon;
 
-    switch (fromObject) {
-      case YoutubeVideo():
-        url = fromObject.url;
-        title = fromObject.title;
-        description = fromObject.description ?? '';
-        type = fromObject.kind ?? 'video';
-        preview = fromObject.thumbnail.high.url ?? '';
-        thumbnail = fromObject.thumbnail.medium.url ?? '';
-        icon = fromObject.thumbnail.small.url ?? '';
-      case String():
-        url = fromObject;
-        title = '';
-        description = '';
-        type = 'url';
-        preview = '';
-        thumbnail = '';
-        icon = '';
-      default:
-        throw Exception('Unexpected fromObject type');
-    }
-
-    return parseCommand(command,
-        url: url,
-        title: title,
-        description: description,
-        type: type,
-        preview: preview,
-        thumbnail: thumbnail,
-        icon: icon);
+  switch (fromObject) {
+    case YoutubeVideo():
+      url = fromObject.url;
+      title = fromObject.title;
+      description = fromObject.description ?? '';
+      type = fromObject.kind ?? 'video';
+      preview = fromObject.thumbnail.high.url ?? '';
+      thumbnail = fromObject.thumbnail.medium.url ?? '';
+      icon = fromObject.thumbnail.small.url ?? '';
+    case String():
+      url = fromObject;
+      title = '';
+      description = '';
+      type = 'url';
+      preview = '';
+      thumbnail = '';
+      icon = '';
+    default:
+      throw Exception('Unexpected fromObject type');
   }
 
-  static Future<void> fromUrl(final String url) async {
-    final prefs = await SharedPreferences.getInstance();
+  return parseCommand(command,
+      url: url,
+      title: title,
+      description: description,
+      type: type,
+      preview: preview,
+      thumbnail: thumbnail,
+      icon: icon);
+}
 
-    await prefs.setStringList('history', [
-      ...?prefs.getStringList('history'),
-      // TODO
-    ]);
+Future<void> playFromUrl(final String url) async {
+  final prefs = await SharedPreferences.getInstance();
 
-    final commands = prefs.getStringList('video_play_commands');
+  await prefs.setStringList('history', [
+    ...?prefs.getStringList('history'),
+    // TODO
+  ]);
 
-    if (commands == null) return;
+  final commands = prefs.getStringList('video_play_commands');
 
-    for (final command in commands) {
-      final parsedCommand = _parseCommand(url, command);
+  if (commands == null) return;
 
-      await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+  for (final command in commands) {
+    final parsedCommand = _defaultData(url, command);
+
+    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+  }
+}
+
+Future<void> playFromYoutubeVideo(final YoutubeVideo youtubeVideo,
+    {final bool fromHistory = false}) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  if (!fromHistory && (prefs.getBool('enable_history') ?? true)) {
+    final historyQueue = Queue.of(
+      prefs.getStringList('history') ?? <String>[],
+    );
+
+    if (historyQueue.length >= (prefs.getInt('history_to_keep') ?? 200)) {
+      historyQueue.removeFirst();
     }
+    historyQueue.add(youtubeVideo.toString());
+
+    await prefs.setStringList('history', historyQueue.toList());
   }
 
-  static Future<void> fromYoutubeVideo(final YoutubeVideo youtubeVideo,
-      {final bool fromHistory = false}) async {
-    final prefs = await SharedPreferences.getInstance();
+  final commands = prefs.getStringList('video_play_commands');
 
-    if (!fromHistory && (prefs.getBool('enable_history') ?? true)) {
-      final historyQueue = Queue.of(
-        prefs.getStringList('history') ?? <String>[],
-      );
+  if (commands == null) return;
 
-      if (historyQueue.length >= (prefs.getInt('history_to_keep') ?? 200)) {
-        historyQueue.removeFirst();
-      }
-      historyQueue.add(youtubeVideo.toString());
+  for (final command in commands) {
+    final parsedCommand = _defaultData(youtubeVideo, command);
 
-      await prefs.setStringList('history', historyQueue.toList());
-    }
-
-    final commands = prefs.getStringList('video_play_commands');
-
-    if (commands == null) return;
-
-    for (final command in commands) {
-      final parsedCommand = _parseCommand(youtubeVideo, command);
-
-      await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
-    }
+    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
   }
 }
 
@@ -184,15 +181,17 @@ List<String> parseCommand(
     dollarSignStack = '';
   };
 
+  const englishAlphabet =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
   for (var i = 0; i < command.length; i++) {
     if (dollarSignStack.isNotEmpty) {
-      if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-          .contains(command[i])) {
+      if (englishAlphabet.contains(command[i])) {
         dollarSignStack += command[i];
+
         final isLastCharacter = i == command.length - 1;
-        if (isLastCharacter) {
-          popDollarSignStack();
-        }
+        if (isLastCharacter) popDollarSignStack();
+
         continue;
       }
       popDollarSignStack();
@@ -215,4 +214,20 @@ List<String> parseCommand(
     buff.last += command[i];
   }
   return buff;
+}
+
+extension HtmlCharacterEntitiesParsing on String {
+  String parseHtmlEntities() {
+    return this.replaceAllMapped(
+      RegExp(r'&(#?)([a-zA-Z0-9]+?);'),
+      (final match) {
+        return switch (match[0]) {
+          '&amp;' => '&',
+          '&#39;' => "'",
+          '&quot;' => '"',
+          _ => '',
+        };
+      },
+    );
+  }
 }

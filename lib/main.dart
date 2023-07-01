@@ -169,7 +169,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _handleTopBar(
       final SearchBoxMode searchBoxMode, final String query) async {
     if (searchBoxMode == SearchBoxMode.play) {
-      await PlayVideo.fromUrl(query);
+      await playFromUrl(query);
       return;
     }
 
@@ -330,7 +330,7 @@ class _TopBarState extends State<_TopBar> {
                   : FluentIcons.search,
             ),
           ),
-          onPressed: () => _handleTopBar(textBoxController.text),
+          onPressed: () async => _handleTopBar(textBoxController.text),
         ),
       ),
     );

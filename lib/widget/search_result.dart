@@ -37,8 +37,8 @@ class SearchResult extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Load more'),
-                        if (!nextButtonEnabled) const SizedBox(width: 8),
-                        if (!nextButtonEnabled)
+                        if (!nextButtonEnabled) ...[
+                          const SizedBox(width: 8),
                           const SizedBox.square(
                             child: ProgressRing(
                               strokeWidth: 2,
@@ -47,6 +47,7 @@ class SearchResult extends StatelessWidget {
                             ),
                             dimension: 12,
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -55,10 +56,7 @@ class SearchResult extends StatelessWidget {
               );
             }
             final youtubeVideo = result[index];
-            final title = youtubeVideo.title
-                .replaceAll('&amp;', '&')
-                .replaceAll('&#39;', '\'')
-                .replaceAll('&quot;', '"');
+            final title = youtubeVideo.title.parseHtmlEntities();
 
             final listItem = switch (youtubeVideo.kind) {
               'video' => ListItemVideo(
@@ -85,7 +83,7 @@ class SearchResult extends StatelessWidget {
 
             return ListItem(
                 autofocus: index == 0,
-                onPlay: () async => PlayVideo.fromYoutubeVideo(youtubeVideo),
+                onPlay: () async => playFromYoutubeVideo(youtubeVideo),
                 onSave: () {},
                 url: youtubeVideo.url,
                 child: listItem);
