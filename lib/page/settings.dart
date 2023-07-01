@@ -1,8 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../intent.dart';
+import '../main.dart';
 import '../model/setting_options.dart';
 
 typedef _TextBoxValue = TextEditingController;
@@ -184,6 +187,22 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'Brightness:',
                     value: BrightnessOptions.dark,
+                  ),
+                  Consumer(
+                    builder: (final BuildContext context, final WidgetRef ref,
+                        final Widget? child) {
+                      return _SettingItem(
+                        key: UniqueKey(),
+                        label: 'Dark mode:',
+                        value: true,
+                        onChanged: (final bool newValue) {
+                          ref.read(brightnessModeProvider.notifier).switchMode(
+                              newValue
+                                  ? BrightnessOptions.dark
+                                  : BrightnessOptions.light);
+                        },
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
@@ -422,6 +441,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
     return Expanded(
       child: LayoutBuilder(
         builder: (final context, final constraints) {
+          final fluentTheme = FluentTheme.of(context);
           return ToggleButtons(
             isSelected: value.map((final select) => select.$2).toList(),
             constraints: BoxConstraints(
@@ -438,15 +458,17 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
               });
             },
             children: [
-              for (final (name, selected) in value)
-                Text(name,
-                    style: TextStyle(color: selected ? Colors.black : null)),
+              for (final (name, _) in value) Text(name),
             ],
             borderWidth: 1,
             borderColor: const Color.fromRGBO(158, 160, 165, 1),
-            selectedBorderColor: FluentTheme.of(context).accentColor,
-            selectedColor: Colors.white,
-            fillColor: FluentTheme.of(context).accentColor.lighter,
+            selectedBorderColor: fluentTheme.accentColor,
+            selectedColor: fluentTheme.brightness == Brightness.light
+                ? Colors.white
+                : Colors.black,
+            fillColor: fluentTheme.brightness == Brightness.light
+                ? fluentTheme.accentColor.dark
+                : fluentTheme.accentColor.lighter,
             borderRadius: BorderRadius.circular(4),
             splashColor: Colors.transparent,
           );

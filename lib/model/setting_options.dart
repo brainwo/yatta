@@ -27,6 +27,16 @@ enum OnPlayOptions implements SettingOptions {
 
   @override
   int currentIndex() => super.index;
+
+  factory OnPlayOptions.fromString(final String option) {
+    return switch (option) {
+      'nothing' => OnPlayOptions.nothing,
+      'minimize' => OnPlayOptions.minimize,
+      'tray' => OnPlayOptions.tray,
+      'exit' => OnPlayOptions.exit,
+      _ => OnPlayOptions.nothing,
+    };
+  }
 }
 
 /// Theme brightness mode.
@@ -50,6 +60,15 @@ enum BrightnessOptions implements SettingOptions {
 
   @override
   int currentIndex() => super.index;
+
+  factory BrightnessOptions.fromString(final String option) {
+    return switch (option) {
+      'light' => BrightnessOptions.light,
+      'dark' => BrightnessOptions.dark,
+      'system' => BrightnessOptions.system,
+      _ => BrightnessOptions.dark,
+    };
+  }
 }
 
 /// Visual desity mode controls how dense the UI looks. The densier the UI is,
@@ -74,4 +93,14 @@ enum VisualDensityOptions implements SettingOptions {
 
   @override
   int currentIndex() => super.index;
+
+  factory VisualDensityOptions.fromString(final String option) {
+    return switch (option) {
+      'compact' => VisualDensityOptions.compact,
+      'standard' => VisualDensityOptions.standard,
+      'comfort' => VisualDensityOptions.comfort,
+      'adaptive' => VisualDensityOptions.adaptive,
+      _ => VisualDensityOptions.adaptive,
+    };
+  }
 }

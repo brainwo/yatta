@@ -37,7 +37,10 @@ class ListItemPlaylist extends StatelessWidget {
               width: 60,
               height: 100,
               color: const Color.fromRGBO(0, 0, 0, 0.65),
-              child: const Icon(FluentIcons.playlist_music),
+              child: const Icon(
+                FluentIcons.playlist_music,
+                color: Colors.white,
+              ),
             )
           ],
         ),

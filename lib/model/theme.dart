@@ -20,9 +20,9 @@ class AppTheme {
   factory AppTheme.arc() {
     return const AppTheme(
       brightness: Brightness.light,
-      background: Color.fromRGBO(64, 69, 82, 1), // #404552
-      backgroundHighlight: Color.fromRGBO(80, 86, 102, 1), // #505666
-      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F`
+      background: Color.fromRGBO(255, 255, 255, 1), // #FFFFFF
+      backgroundHighlight: Color.fromRGBO(250, 251, 252, 1), // #FAFBFC
+      backgroundDarker: Color.fromRGBO(245, 246, 247, 1), // #F5F6F7
       text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
       primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
     );
@@ -33,7 +33,7 @@ class AppTheme {
       brightness: Brightness.light,
       background: Color.fromRGBO(64, 69, 82, 1), // #404552
       backgroundHighlight: Color.fromRGBO(80, 86, 102, 1), // #505666
-      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F`
+      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F
       text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
       primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
     );
@@ -44,7 +44,7 @@ class AppTheme {
       brightness: Brightness.dark,
       background: Color.fromRGBO(64, 69, 82, 1), // #404552
       backgroundHighlight: Color.fromRGBO(80, 86, 102, 1), // #505666
-      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F`
+      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F
       text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
       primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
     );
