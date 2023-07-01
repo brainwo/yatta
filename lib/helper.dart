@@ -213,6 +213,7 @@ List<String> parseCommand(
 
     buff.last += command[i];
   }
+  if (buff.last == '') buff = buff.take(buff.length - 1).toList();
   return buff;
 }
 
