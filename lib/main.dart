@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
@@ -7,6 +8,8 @@ import 'const.dart';
 import 'helper.dart';
 import 'intent.dart';
 import 'locale/en_us.dart';
+import 'model/setting_options.dart';
+import 'model/state.dart';
 import 'model/theme.dart';
 import 'page/history.dart';
 import 'page/playlist.dart';
@@ -16,13 +19,31 @@ import 'widget/search_result.dart';
 import 'widget/welcome_message.dart';
 
 void main() {
-  runApp(const App());
+  runApp(ProviderScope(child: ThemedApp()));
+}
+
+final brightnessModeProvider =
+    StateNotifierProvider<BrightnessMode, BrightnessOptions>((final ref) {
+  return BrightnessMode();
+});
+
+class ThemedApp extends ConsumerWidget {
+  @override
+  Widget build(final BuildContext context, final WidgetRef ref) {
+    final brightnessMode = ref.watch(brightnessModeProvider);
+    return App(brightnessMode: brightnessMode);
+  }
 }
 
 class App extends StatelessWidget {
-  const App({super.key});
+  final BrightnessOptions brightnessMode;
+  App({required this.brightnessMode, super.key});
 
-  static final appTheme = AppTheme.from(defaultThemeName);
+  late final appTheme = switch (brightnessMode) {
+    BrightnessOptions.dark => AppTheme.from(defaultThemeName),
+    BrightnessOptions.light => AppTheme.arc(),
+    _ => AppTheme.arcDark(),
+  };
 
   @override
   Widget build(final BuildContext context) {
@@ -48,8 +69,11 @@ class App extends StatelessWidget {
           const SingleActivator(LogicalKeyboardKey.escape):
               const NavigationPopIntent(),
         },
-        // TODO: theme provider
-        theme: FluentThemeData.dark().copyWith(
+        theme: (appTheme.brightness == Brightness.light
+                ? FluentThemeData.light()
+                : FluentThemeData.dark())
+            .copyWith(
+          brightness: appTheme.brightness,
           accentColor: appTheme.primary.toAccentColor(),
           activeColor: appTheme.primary,
           buttonTheme: ButtonThemeData(
@@ -87,11 +111,14 @@ class App extends StatelessWidget {
           navigationPaneTheme: NavigationPaneThemeData(
             backgroundColor: appTheme.backgroundDarker,
           ),
-          resources: ResourceDictionary.dark(
-            controlFillColorInputActive: appTheme.background,
-          ),
+          resources: appTheme.brightness == Brightness.light
+              ? ResourceDictionary.light(
+                  controlFillColorInputActive: appTheme.background,
+                )
+              : ResourceDictionary.dark(
+                  controlFillColorInputActive: appTheme.background,
+                ),
         ),
-        darkTheme: FluentThemeData.dark(),
         routes: {
           '/': (final _) => const HomePage(),
           '/playlist': (final _) => const PlaylistPage(),
