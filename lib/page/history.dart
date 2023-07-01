@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
@@ -34,7 +36,9 @@ class _HistoryPageState extends State<HistoryPage> {
       )
     };
 
-    fetchHistory();
+    WidgetsBinding.instance.addPostFrameCallback((final _) async {
+      await fetchHistory();
+    });
   }
 
   Future<void> fetchHistory() async {
@@ -118,8 +122,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
                 return ListItem(
                   autofocus: index == 0,
-                  onPlay: () async => PlayVideo.fromYoutubeVideo(youtubeVideo,
-                      fromHistory: true),
+                  onPlay: () async =>
+                      playFromYoutubeVideo(youtubeVideo, fromHistory: true),
                   onSave: () {},
                   url: youtubeVideo.url,
                   child: listItem,

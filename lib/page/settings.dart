@@ -10,16 +10,15 @@ typedef _NumberBoxValue = int;
 typedef _CheckBoxValue = bool;
 typedef _MultipleTextBoxValue = List<(TextEditingController, FocusNode)>;
 typedef _ToggleButtonValue = List<(String, bool)>;
-typedef _ButtonValue = Null;
+typedef _ButtonValue = void;
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  Future<SharedPreferences> _loadSharedPreferences() async {
-    return SharedPreferences.getInstance();
-  }
+  static final Future<SharedPreferences> _loadSharedPreferences =
+      SharedPreferences.getInstance();
 
-  void _navigationPop(final BuildContext context) {
+  static void _navigationPop(final BuildContext context) {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
@@ -36,7 +35,7 @@ class SettingsPage extends StatelessWidget {
       child: NavigationView(
         appBar: const NavigationAppBar(title: Text('Settings')),
         content: FutureBuilder(
-            future: _loadSharedPreferences(),
+            future: _loadSharedPreferences,
             builder: (final context, final snapshot) {
               if (!snapshot.hasData) {
                 return const Center(child: ProgressBar());
@@ -77,33 +76,39 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Minimized on launch:',
                     value: minimizedOnLaunchValue ?? false,
-                    onChanged: (final bool newValue) {
-                      snapshot.data?.setBool(minimizedOnLaunchKey, newValue);
+                    onChanged: (final bool newValue) async {
+                      await snapshot.data
+                          ?.setBool(minimizedOnLaunchKey, newValue);
                     },
                     autofocus: true,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'On play:',
                     value: OnPlayOptions.nothing,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Autofocus navigation:',
                     value: autoFocusNavigationValue ?? true,
-                    onChanged: (final bool newValue) {
-                      snapshot.data?.setBool(autoFocusNavigationKey, newValue);
+                    onChanged: (final bool newValue) async {
+                      await snapshot.data
+                          ?.setBool(autoFocusNavigationKey, newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Video play commands:',
                     value: videoPlayCommandsValue ?? [''],
                     multiline: true,
-                    onChanged: (final List<String> newValue) {
-                      snapshot.data
+                    onChanged: (final List<String> newValue) async {
+                      await snapshot.data
                           ?.setStringList(videoPlayCommandsKey, newValue);
                     },
                   ),
@@ -120,39 +125,46 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'API key:',
                     value: youtubeAPIKeyValue ?? '',
                     sensitive: true,
-                    onChanged: (final String newValue) {
-                      snapshot.data?.setString(youtubeAPIKeyKey, newValue);
+                    onChanged: (final String newValue) async {
+                      await snapshot.data
+                          ?.setString(youtubeAPIKeyKey, newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Enable publish date:',
                     value: true,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Enable watch count:',
                     value: false,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Result per search:',
                     value: youtubeResultPerSearchValue ?? 10,
-                    onChanged: (final int newValue) {
-                      snapshot.data
+                    onChanged: (final int newValue) async {
+                      await snapshot.data
                           ?.setInt(youtubeResultPerSearchKey, newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Infinite scroll search:',
                     value: false,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Region id:',
                     value: '',
                   ),
@@ -169,11 +181,13 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Brightness:',
                     value: BrightnessOptions.dark,
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Visual Density:',
                     value: VisualDensityOptions.adaptive,
                   ),
@@ -190,26 +204,29 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'Enable History:',
                     value: enableHistoryValue ?? true,
-                    onChanged: (final newValue) {
-                      snapshot.data?.setBool(enableHistoryKey, newValue);
+                    onChanged: (final newValue) async {
+                      await snapshot.data?.setBool(enableHistoryKey, newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                    key: UniqueKey(),
                     label: 'History to keep:',
                     value: historyToKeepValue ?? 200,
-                    onChanged: (final newValue) {
-                      snapshot.data?.setInt(historyToKeepKey, newValue);
+                    onChanged: (final newValue) async {
+                      await snapshot.data?.setInt(historyToKeepKey, newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
+                      key: UniqueKey(),
                       label: 'Remove history:',
-                      value: (),
-                      onChanged: (final _) {
-                        snapshot.data?.setStringList('history', []);
+                      value: _ButtonValue,
+                      onChanged: (final _) async {
+                        await snapshot.data?.setStringList('history', []);
                       }),
                   const SizedBox(height: 16),
                 ],
@@ -235,17 +252,22 @@ class _SettingItem<T> extends StatefulWidget {
     this.sensitive = false,
     this.autofocus = false,
     this.multiline = false,
-  }) : assert(
+    super.key,
+  })  : assert(
           switch (value) {
             String() => true,
             int() => true,
             bool() => true,
             List<String>() => true,
             SettingOptions() => true,
-            () => true,
+            _ButtonValue => true,
             _ => false,
           },
           'Unrecognized value type. Acceptable types are: String, int, bool, List<String>',
+        ),
+        assert(
+          !sensitive || value is String,
+          'Sensitive option is only valid for String',
         );
 
   @override
@@ -325,11 +347,9 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
           autofocus: widget.autofocus,
           checked: value,
           onChanged: (final bool? newValue) {
-            if (newValue != null) {
-              widget.onChanged!(newValue as T);
-
-              setState(() => initialValue = newValue);
-            }
+            if (newValue == null) return;
+            widget.onChanged!(newValue as T);
+            setState(() => initialValue = newValue);
           },
         ),
       ),

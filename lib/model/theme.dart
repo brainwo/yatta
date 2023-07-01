@@ -17,7 +17,7 @@ class AppTheme {
     required this.primary,
   });
 
-  static AppTheme arc() {
+  factory AppTheme.arc() {
     return AppTheme(
       brightness: Brightness.light,
       background: const Color.fromRGBO(64, 69, 82, 1), // #404552
@@ -28,7 +28,7 @@ class AppTheme {
     );
   }
 
-  static AppTheme arcDarker() {
+  factory AppTheme.arcDarker() {
     return AppTheme(
       brightness: Brightness.light,
       background: const Color.fromRGBO(64, 69, 82, 1), // #404552
@@ -39,7 +39,7 @@ class AppTheme {
     );
   }
 
-  static AppTheme arcDark() {
+  factory AppTheme.arcDark() {
     return AppTheme(
       brightness: Brightness.dark,
       background: const Color.fromRGBO(64, 69, 82, 1), // #404552
@@ -50,12 +50,12 @@ class AppTheme {
     );
   }
 
-  static AppTheme from(final String themeName) {
+  factory AppTheme.from(final String themeName) {
     return switch (themeName) {
-      'Arc' => arc(),
-      'Arc-Darker' => arcDarker(),
-      'Arc-Dark' => arcDark(),
-      _ => arcDark(),
+      'Arc' => AppTheme.arc(),
+      'Arc-Darker' => AppTheme.arcDarker(),
+      'Arc-Dark' => AppTheme.arcDark(),
+      _ => AppTheme.arcDark(),
     };
   }
 }

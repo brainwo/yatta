@@ -65,8 +65,8 @@ class WelcomeMessage extends StatelessWidget {
                 title: 'Saved playlist',
                 subtitle: 'View saved videos, playlists, and channels',
                 icon: FluentIcons.playlist_music,
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/playlist');
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed('/playlist');
                 },
               ),
               _SelectionMenu(
@@ -74,8 +74,8 @@ class WelcomeMessage extends StatelessWidget {
                 title: 'History',
                 subtitle: 'Browse through recent play history',
                 icon: FluentIcons.history,
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/history');
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed('/history');
                 },
               ),
               _SelectionMenu(
@@ -83,8 +83,8 @@ class WelcomeMessage extends StatelessWidget {
                 title: 'Settings',
                 subtitle: 'Configure app settings and preferences',
                 icon: FluentIcons.settings,
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/settings');
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed('/settings');
                 },
               ),
             ],

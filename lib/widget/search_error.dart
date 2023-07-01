@@ -14,20 +14,22 @@ class SearchError extends StatelessWidget {
     super.key,
   });
 
-  void _handleCopyToClipboard(final BuildContext context) {
-    Clipboard.setData(ClipboardData(text: errorText));
+  Future<void> _handleCopyToClipboard(final BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: errorText));
 
-    displayInfoBar(context, builder: (final context, final close) {
-      return InfoBar(
-        title: const Text('Copied'),
-        content: const Text('Error details copied to clipboard'),
-        action: IconButton(
-          icon: const Icon(FluentIcons.clear),
-          onPressed: close,
-        ),
-        severity: InfoBarSeverity.info,
-      );
-    });
+    if (context.mounted) {
+      await displayInfoBar(context, builder: (final context, final close) {
+        return InfoBar(
+          title: const Text('Copied'),
+          content: const Text('Error details copied to clipboard'),
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+          severity: InfoBarSeverity.info,
+        );
+      });
+    }
   }
 
   @override
@@ -70,8 +72,8 @@ class SearchError extends StatelessWidget {
                     message: 'Copy to clipboard',
                     child: Button(
                       child: const Icon(FluentIcons.copy),
-                      onPressed: () {
-                        _handleCopyToClipboard(context);
+                      onPressed: () async {
+                        await _handleCopyToClipboard(context);
                       },
                     ),
                   ),

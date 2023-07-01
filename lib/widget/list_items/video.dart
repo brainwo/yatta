@@ -1,4 +1,4 @@
-part of list_item;
+part of 'list_item.dart';
 
 class ListItemVideo extends StatelessWidget {
   final String title;
@@ -20,48 +20,12 @@ class ListItemVideo extends StatelessWidget {
     this.thumbnailUrl,
   }) : super(key: key);
 
-  Widget videoThumbnail(final BuildContext context) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomEnd,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Image.network(
-            thumbnailUrl!,
-            width: 180,
-            height: 100,
-            errorBuilder: (final _, final __, final ___) => Container(
-                width: 180,
-                height: 100,
-                color: FluentTheme.of(context).inactiveColor),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(2),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 4,
-              vertical: 2,
-            ),
-            child: Text(
-              duration,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(final BuildContext context) {
     return Row(
       children: [
-        if (thumbnailUrl!.isNotEmpty) videoThumbnail(context),
+        if (thumbnailUrl!.isNotEmpty)
+          _VideoThumbnail(thumbnailUrl: thumbnailUrl, duration: duration),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -97,6 +61,54 @@ class ListItemVideo extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VideoThumbnail extends StatelessWidget {
+  const _VideoThumbnail({
+    required this.thumbnailUrl,
+    required this.duration,
+  });
+
+  final String? thumbnailUrl;
+  final String duration;
+
+  @override
+  Widget build(final BuildContext context) {
+    return Stack(
+      alignment: AlignmentDirectional.bottomEnd,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Image.network(
+            thumbnailUrl!,
+            width: 180,
+            height: 100,
+            errorBuilder: (final _, final __, final ___) => Container(
+                width: 180,
+                height: 100,
+                color: FluentTheme.of(context).inactiveColor),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(2),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 4,
+              vertical: 2,
+            ),
+            child: Text(
+              duration,
+              style: const TextStyle(fontSize: 12),
+            ),
           ),
         ),
       ],

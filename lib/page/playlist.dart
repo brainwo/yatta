@@ -15,13 +15,12 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  final FocusNode searchBarFocus = FocusNode();
-  late final Map<Type, Action<Intent>> _actionMap;
-  late Future<List<String>?> future;
+  static final FocusNode searchBarFocus = FocusNode();
+  static late final Map<Type, Action<Intent>> _actionMap;
+  static late Future<List<String>?> future;
 
   @override
   void initState() {
-    future = fetchHistory();
     super.initState();
 
     _actionMap = {
@@ -32,6 +31,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
         onInvoke: (final _) => _navigationPop(context),
       )
     };
+
+    WidgetsBinding.instance.addPostFrameCallback((final _) async {
+      future = fetchHistory();
+    });
   }
 
   Future<List<String>?> fetchHistory() async {
@@ -44,9 +47,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void _navigationPop(final BuildContext context) {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
+    if (Navigator.of(context).canPop()) Navigator.of(context).pop();
   }
 
   @override
@@ -55,18 +56,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
       actions: _actionMap,
       child: NavigationView(
         appBar: NavigationAppBar(
-            title: TextBox(
-          focusNode: searchBarFocus,
-          placeholder: 'Search from saved playlist',
-        )),
+          title: TextBox(
+            focusNode: searchBarFocus,
+            placeholder: 'Search from saved playlist',
+          ),
+        ),
         content: KeyboardNavigation(
           child: Center(
             child: FutureBuilder(
               future: future,
               builder: (final context, final snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox.shrink();
-                }
+                if (!snapshot.hasData) return const SizedBox.shrink();
 
                 final historyList = snapshot.data!
                     .map((final e) => YoutubeVideo.fromString(e))
@@ -109,8 +109,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
                     return ListItem(
                         autofocus: index == 0,
-                        onPlay: () async => PlayVideo.fromYoutubeVideo(
-                            youtubeVideo,
+                        onPlay: () async => playFromYoutubeVideo(youtubeVideo,
                             fromHistory: true),
                         onSave: () {},
                         url: youtubeVideo.url,
