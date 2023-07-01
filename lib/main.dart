@@ -98,6 +98,9 @@ class App extends StatelessWidget {
           '/history': (final _) => const HistoryPage(),
           '/settings': (final _) => const SettingsPage(),
         },
+        supportedLocales: [
+          const Locale('en'),
+        ],
       ),
     );
   }
