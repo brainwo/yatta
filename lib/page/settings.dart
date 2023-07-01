@@ -237,6 +237,9 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
+const unrecognizedValue = '''
+Unrecognized value type. Acceptable types are: String, int, bool, List<String>''';
+
 class _SettingItem<T> extends StatefulWidget {
   final String label;
   final T value;
@@ -263,7 +266,7 @@ class _SettingItem<T> extends StatefulWidget {
             _ButtonValue => true,
             _ => false,
           },
-          'Unrecognized value type. Acceptable types are: String, int, bool, List<String>',
+          unrecognizedValue,
         ),
         assert(
           !sensitive || value is String,
