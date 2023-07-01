@@ -443,7 +443,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
             borderColor: const Color.fromRGBO(158, 160, 165, 1),
             selectedBorderColor: FluentTheme.of(context).accentColor,
             selectedColor: Colors.white,
-            fillColor: const Color.fromRGBO(133, 177, 229, 1),
+            fillColor: FluentTheme.of(context).accentColor.lighter,
             borderRadius: BorderRadius.circular(4),
           );
         },
