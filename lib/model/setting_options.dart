@@ -1,6 +1,6 @@
 abstract class SettingOptions {
   int size();
-  List<String> names();
+  List<(SettingOptions, String)> options();
   int currentIndex();
 }
 
@@ -21,12 +21,22 @@ enum OnPlayOptions implements SettingOptions {
   int size() => OnPlayOptions.values.length;
 
   @override
-  List<String> names() => OnPlayOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(OnPlayOptions, String)> options() => OnPlayOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
   int currentIndex() => super.index;
+
+  factory OnPlayOptions.fromString(final String option) {
+    return switch (option) {
+      'nothing' => OnPlayOptions.nothing,
+      'minimize' => OnPlayOptions.minimize,
+      'tray' => OnPlayOptions.tray,
+      'exit' => OnPlayOptions.exit,
+      _ => OnPlayOptions.nothing,
+    };
+  }
 }
 
 /// Theme brightness mode.
@@ -44,12 +54,21 @@ enum BrightnessOptions implements SettingOptions {
   int size() => BrightnessOptions.values.length;
 
   @override
-  List<String> names() => BrightnessOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(BrightnessOptions, String)> options() => BrightnessOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
   int currentIndex() => super.index;
+
+  factory BrightnessOptions.fromString(final String option) {
+    return switch (option) {
+      'light' => BrightnessOptions.light,
+      'dark' => BrightnessOptions.dark,
+      'system' => BrightnessOptions.system,
+      _ => BrightnessOptions.dark,
+    };
+  }
 }
 
 /// Visual desity mode controls how dense the UI looks. The densier the UI is,
@@ -68,10 +87,20 @@ enum VisualDensityOptions implements SettingOptions {
   int size() => VisualDensityOptions.values.length;
 
   @override
-  List<String> names() => VisualDensityOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(VisualDensityOptions, String)> options() => VisualDensityOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
   int currentIndex() => super.index;
+
+  factory VisualDensityOptions.fromString(final String option) {
+    return switch (option) {
+      'compact' => VisualDensityOptions.compact,
+      'standard' => VisualDensityOptions.standard,
+      'comfort' => VisualDensityOptions.comfort,
+      'adaptive' => VisualDensityOptions.adaptive,
+      _ => VisualDensityOptions.adaptive,
+    };
+  }
 }

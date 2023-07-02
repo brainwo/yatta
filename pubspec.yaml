@@ -12,6 +12,7 @@ dependencies:
   fluent_ui: ^4.6.2
   flutter:
     sdk: flutter
+  flutter_riverpod: ^2.3.6
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
   youtube_api:

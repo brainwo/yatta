@@ -179,19 +179,22 @@ class _SelectionMenu extends StatelessWidget {
                           );
                         }),
                         const SizedBox(height: 8),
-                        Text(
-                          subtitle,
-                          style: FluentTheme.of(context)
-                              .typography
-                              .body
-                              ?.copyWith(
-                                color: DefaultTextStyle.of(context).style.color,
-                                fontWeight: FontWeight.w300,
-                              ),
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                        Builder(builder: (final context) {
+                          return Text(
+                            subtitle,
+                            style: FluentTheme.of(context)
+                                .typography
+                                .body
+                                ?.copyWith(
+                                  color:
+                                      DefaultTextStyle.of(context).style.color,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                            textAlign: TextAlign.start,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          );
+                        }),
                       ],
                     ),
                   ),
