@@ -1,7 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../intent.dart';
@@ -12,7 +11,7 @@ typedef _TextBoxValue = TextEditingController;
 typedef _NumberBoxValue = int;
 typedef _CheckBoxValue = bool;
 typedef _MultipleTextBoxValue = List<(TextEditingController, FocusNode)>;
-typedef _ToggleButtonValue = List<(String, bool)>;
+typedef _ToggleButtonValue = List<((SettingOptions, String), bool)>;
 typedef _ButtonValue = void;
 
 class SettingsPage extends StatelessWidget {
@@ -93,6 +92,9 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'On play:',
                     value: OnPlayOptions.nothing,
+                    onChanged: (final _) {
+                      // TODO: implement on play
+                    },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
@@ -139,15 +141,20 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
-                    key: UniqueKey(),
-                    label: 'Enable publish date:',
-                    value: true,
-                  ),
+                      key: UniqueKey(),
+                      label: 'Enable publish date:',
+                      value: true,
+                      onChanged: (final _) {
+                        // TODO: implement publish date
+                      }),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Enable watch count:',
                     value: false,
+                    onChanged: (final _) {
+                      // TODO: implement enable watch count
+                    },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
@@ -164,12 +171,18 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'Infinite scroll search:',
                     value: false,
+                    onChanged: (final _) {
+                      // TODO: implement Infinite scroll search
+                    },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Region id:',
                     value: '',
+                    onChanged: (final _) {
+                      // TODO: implment region id
+                    },
                   ),
                   const SizedBox(height: 16),
                   const Divider(),
@@ -183,32 +196,27 @@ class SettingsPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _SettingItem(
-                    key: UniqueKey(),
-                    label: 'Brightness:',
-                    value: BrightnessOptions.dark,
-                  ),
-                  Consumer(
-                    builder: (final BuildContext context, final WidgetRef ref,
-                        final Widget? child) {
-                      return _SettingItem(
-                        key: UniqueKey(),
-                        label: 'Dark mode:',
-                        value: true,
-                        onChanged: (final bool newValue) {
-                          ref.read(brightnessModeProvider.notifier).switchMode(
-                              newValue
-                                  ? BrightnessOptions.dark
-                                  : BrightnessOptions.light);
-                        },
-                      );
-                    },
-                  ),
+                  Consumer(builder: (final BuildContext context,
+                      final WidgetRef ref, final Widget? child) {
+                    return _SettingItem(
+                      key: UniqueKey(),
+                      label: 'Brightness:',
+                      value: BrightnessOptions.dark,
+                      onChanged: (final BrightnessOptions newValue) {
+                        ref
+                            .read(brightnessModeProvider.notifier)
+                            .switchMode(newValue);
+                      },
+                    );
+                  }),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Visual Density:',
                     value: VisualDensityOptions.adaptive,
+                    onChanged: (final _) {
+                      // TODO: implement visual density options
+                    },
                   ),
                   const SizedBox(height: 16),
                   const Divider(),
@@ -262,7 +270,7 @@ Unrecognized value type. Acceptable types are: String, int, bool, List<String>''
 class _SettingItem<T> extends StatefulWidget {
   final String label;
   final T value;
-  final void Function(T)? onChanged;
+  final void Function(T) onChanged;
   final bool sensitive;
   final bool autofocus;
   final bool multiline;
@@ -270,7 +278,7 @@ class _SettingItem<T> extends StatefulWidget {
   _SettingItem({
     required this.label,
     required this.value,
-    this.onChanged,
+    required this.onChanged,
     this.sensitive = false,
     this.autofocus = false,
     this.multiline = false,
@@ -317,12 +325,12 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
             (TextEditingController()..text = item, FocusNode())
         ];
       case SettingOptions():
-        final names = value.names();
+        final options = value.options();
         final selectedIndex = value.currentIndex();
         final size = value.size();
         initialValue = List.generate(
           size,
-          (final index) => (names[index], index == selectedIndex),
+          (final index) => (options[index], index == selectedIndex),
         );
       default:
         initialValue = Null;
@@ -338,7 +346,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
         controller: value,
         maxLines: widget.multiline ? null : 1,
         onChanged: (final String newValue) {
-          widget.onChanged!(newValue as T);
+          widget.onChanged(newValue as T);
         },
       ),
     );
@@ -350,7 +358,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
         value: value,
         onChanged: (final int? newValue) {
           if (newValue == null) return;
-          widget.onChanged!(newValue as T);
+          widget.onChanged(newValue as T);
         },
         min: 10,
         smallChange: 10,
@@ -370,7 +378,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
           checked: value,
           onChanged: (final bool? newValue) {
             if (newValue == null) return;
-            widget.onChanged!(newValue as T);
+            widget.onChanged(newValue as T);
             setState(() => initialValue = newValue);
           },
         ),
@@ -394,7 +402,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
                         controller: controller,
                         maxLines: widget.multiline ? null : 1,
                         onChanged: (final _) {
-                          widget.onChanged!(List<String>.of(
+                          widget.onChanged(List<String>.of(
                                   value.map((final e) => e.$1.text.trim()))
                               .toList() as T);
                           setState(() {});
@@ -408,7 +416,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
                           ? () {
                               setState(
                                   () => value.remove((controller, focusNode)));
-                              widget.onChanged!(List<String>.of(
+                              widget.onChanged(List<String>.of(
                                       value.map((final e) => e.$1.text.trim()))
                                   .toList() as T);
                             }
@@ -456,9 +464,10 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
                   (final index) => (value[index].$1, selectedIndex == index),
                 );
               });
+              widget.onChanged(value[selectedIndex].$1.$1 as T);
             },
             children: [
-              for (final (name, _) in value) Text(name),
+              for (final ((_, name), _) in value) Text(name),
             ],
             borderWidth: 1,
             borderColor: const Color.fromRGBO(158, 160, 165, 1),
@@ -483,7 +492,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
         height: 32,
         child: Button(
           onPressed: () {
-            widget.onChanged!(() as T);
+            widget.onChanged(() as T);
           },
           child: const Center(child: Text('Clear history')),
         ),

@@ -1,6 +1,6 @@
 abstract class SettingOptions {
   int size();
-  List<String> names();
+  List<(SettingOptions, String)> options();
   int currentIndex();
 }
 
@@ -21,8 +21,8 @@ enum OnPlayOptions implements SettingOptions {
   int size() => OnPlayOptions.values.length;
 
   @override
-  List<String> names() => OnPlayOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(OnPlayOptions, String)> options() => OnPlayOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
@@ -54,8 +54,8 @@ enum BrightnessOptions implements SettingOptions {
   int size() => BrightnessOptions.values.length;
 
   @override
-  List<String> names() => BrightnessOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(BrightnessOptions, String)> options() => BrightnessOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
@@ -87,8 +87,8 @@ enum VisualDensityOptions implements SettingOptions {
   int size() => VisualDensityOptions.values.length;
 
   @override
-  List<String> names() => VisualDensityOptions.values
-      .map((final e) => '${e.name[0].toUpperCase()}${e.name.substring(1)}')
+  List<(VisualDensityOptions, String)> options() => VisualDensityOptions.values
+      .map((final e) => (e, '${e.name[0].toUpperCase()}${e.name.substring(1)}'))
       .toList();
 
   @override
