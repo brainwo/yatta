@@ -19,7 +19,7 @@ import 'widget/search_result.dart';
 import 'widget/welcome_message.dart';
 
 void main() {
-  runApp(ProviderScope(child: ThemedApp()));
+  runApp(const ProviderScope(child: ThemedApp()));
 }
 
 final brightnessModeProvider =
@@ -27,9 +27,30 @@ final brightnessModeProvider =
   return BrightnessMode();
 });
 
-class ThemedApp extends ConsumerWidget {
+class ThemedApp extends ConsumerStatefulWidget {
+  const ThemedApp({super.key});
+
   @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
+  ConsumerState<ThemedApp> createState() => _ThemedAppState();
+}
+
+class _ThemedAppState extends ConsumerState<ThemedApp> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((final _) async {
+      final intialBrightnessMode = ref.read(brightnessModeProvider);
+      final prefs = await SharedPreferences.getInstance()
+          .then((final value) => value.getString('theme_brightness'));
+      if (prefs != null && prefs != intialBrightnessMode.name) {
+        ref.read(brightnessModeProvider.notifier).switchModeFromString(prefs);
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(final BuildContext context) {
     final brightnessMode = ref.watch(brightnessModeProvider);
     return App(brightnessMode: brightnessMode);
   }
@@ -37,16 +58,16 @@ class ThemedApp extends ConsumerWidget {
 
 class App extends StatelessWidget {
   final BrightnessOptions brightnessMode;
-  App({required this.brightnessMode, super.key});
-
-  late final appTheme = switch (brightnessMode) {
-    BrightnessOptions.dark => AppTheme.from(defaultThemeName),
-    BrightnessOptions.light => AppTheme.arc(),
-    _ => AppTheme.arcDark(),
-  };
+  const App({required this.brightnessMode, super.key});
 
   @override
   Widget build(final BuildContext context) {
+    final appTheme = switch (brightnessMode) {
+      BrightnessOptions.dark => AppTheme.from(defaultThemeName),
+      BrightnessOptions.light => AppTheme.arc(),
+      _ => AppTheme.arcDark(),
+    };
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: FluentApp(
