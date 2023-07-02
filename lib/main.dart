@@ -238,11 +238,12 @@ class _HomePageState extends State<HomePage> {
                       nextButtonEnabled: nextButtonEnabled,
                       loadMoreCallback: () async {
                         setState(() => nextButtonEnabled = false);
-                        final nextPage = await youtubeApi.nextPage();
-                        setState(() {
-                          resultList = [...resultList, ...nextPage];
-                          nextButtonEnabled = true;
-                        });
+                        await youtubeApi
+                            .nextPage()
+                            .then((final nextPage) => setState(() {
+                                  resultList = [...resultList, ...nextPage];
+                                  nextButtonEnabled = true;
+                                }));
                       },
                     );
                   },

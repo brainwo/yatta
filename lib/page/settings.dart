@@ -333,7 +333,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
           if (newValue == null) return;
           widget.onChanged!(newValue as T);
         },
-        min: 0,
+        min: 10,
         smallChange: 10,
         largeChange: 50,
         clearButton: false,
