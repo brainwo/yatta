@@ -64,6 +64,14 @@ class SettingsPage extends StatelessWidget {
               const historyToKeepKey = 'history_to_keep';
               final historyToKeepValue =
                   snapshot.data?.getInt(historyToKeepKey);
+              const themeBrightnessKey = 'theme_brightness';
+              final _themeBrightnessData =
+                  snapshot.data?.getString(themeBrightnessKey);
+              final themeBrightnessValue = _themeBrightnessData != null
+                  ? BrightnessOptions.values
+                      .where((final e) => e.name == _themeBrightnessData)
+                      .firstOrNull
+                  : null;
 
               return ListView(
                 children: [
@@ -201,8 +209,10 @@ class SettingsPage extends StatelessWidget {
                     return _SettingItem(
                       key: UniqueKey(),
                       label: 'Brightness:',
-                      value: BrightnessOptions.dark,
-                      onChanged: (final BrightnessOptions newValue) {
+                      value: themeBrightnessValue ?? BrightnessOptions.dark,
+                      onChanged: (final BrightnessOptions newValue) async {
+                        await snapshot.data
+                            ?.setString(themeBrightnessKey, newValue.name);
                         ref
                             .read(brightnessModeProvider.notifier)
                             .switchMode(newValue);

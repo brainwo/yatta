@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'setting_options.dart';
 
 class BrightnessMode extends StateNotifier<BrightnessOptions> {
