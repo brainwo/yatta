@@ -9,7 +9,7 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  fluent_ui: ^4.6.2
+  fluent_ui: ^4.7.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.3.6
