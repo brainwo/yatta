@@ -19,9 +19,11 @@ dependencies:
     path: ../youtube_api/
 
 dev_dependencies:
+  custom_lint:
   extra_pedantic: ^4.0.0
   flutter_test:
     sdk: flutter
+  riverpod_lint:
   test: ^1.21.0
 
 flutter:
