@@ -8,6 +8,8 @@ class AppString {
   AppString._();
 
   static const String noSearchQuery = 'No search query';
+  static const String noResultsFound =
+      'No results were found for this search query';
   static const String searchPlaceholderAll = 'Search or paste your link here';
   static const String searchPlaceholder = 'Search...';
   static const String errorInformation = 'Error: ';

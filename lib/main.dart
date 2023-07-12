@@ -281,19 +281,25 @@ class _HomePageState extends State<HomePage> {
                 const Center(child: ProgressBar()),
               ConnectionState.done => StatefulBuilder(
                   builder: (final context, final StateSetter setState) {
-                    return SearchResult(
-                      result: resultList,
-                      nextButtonEnabled: nextButtonEnabled,
-                      loadMoreCallback: () async {
-                        setState(() => nextButtonEnabled = false);
-                        await youtubeApi
-                            .nextPage()
-                            .then((final nextPage) => setState(() {
-                                  resultList = [...resultList, ...nextPage];
-                                  nextButtonEnabled = true;
-                                }));
-                      },
-                    );
+                    if (resultList.isNotEmpty) {
+                      return SearchResult(
+                        result: resultList,
+                        nextButtonEnabled: nextButtonEnabled,
+                        loadMoreCallback: () async {
+                          setState(() => nextButtonEnabled = false);
+                          await youtubeApi
+                              .nextPage()
+                              .then((final nextPage) => setState(() {
+                                    resultList = [...resultList, ...nextPage];
+                                    nextButtonEnabled = true;
+                                  }));
+                        },
+                      );
+                    } else {
+                      // Return error Widget here
+                      return const SearchError(
+                          errorText: AppString.noResultsFound);
+                    }
                   },
                 ),
             };
