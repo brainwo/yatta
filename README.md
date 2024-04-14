@@ -1,5 +1,5 @@
 <div align="center">
-<img src="img/preview.png.png" alt="Application preview showing search result"/>
+<img src="img/preview.png" alt="Application preview showing search result"/>
 <h1>Yatta ヤッタ</h1>
 
 [![Made with Fluent Design](https://img.shields.io/badge/fluent-design-blue?labelColor=0078D7")](https://github.com/bdlukaa/fluent_ui "Made with Fluent Design")
