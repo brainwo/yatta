@@ -81,7 +81,7 @@ sdks:
 ## Contributing
 
 <details>
-<summary><strong>How do I add support for a new platform?</strong></summary>
+<summary><strong>How do I add support for a new video platform?</strong></summary>
 First please confirm the platform you are adding has an official search API support, otherwise your request will be rejected. Other than that, piracy sites will also be rejected.
 </details>
 
