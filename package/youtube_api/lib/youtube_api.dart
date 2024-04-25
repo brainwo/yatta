@@ -112,7 +112,7 @@ class YoutubeApi {
     List<YoutubeVideo>? result = [];
     if (jsonData == null) return [];
     nextPageToken = jsonData['nextPageToken'];
-    api.setNextPageToken(nextPageToken!);
+    api.setNextPageToken(nextPageToken);
     int total = jsonData['pageInfo']['totalResults'] <
             jsonData['pageInfo']['resultsPerPage']
         ? jsonData['pageInfo']['totalResults']
@@ -159,8 +159,8 @@ class YoutubeApi {
 
     nextPageToken = jsonData['nextPageToken'];
     prevPageToken = jsonData['prevPageToken'];
-    api.setNextPageToken(nextPageToken!);
-    api.setPrevPageToken(prevPageToken!);
+    api.setNextPageToken(nextPageToken);
+    api.setPrevPageToken(prevPageToken);
     final int total = jsonData['pageInfo']['totalResults'] <
             jsonData['pageInfo']['resultsPerPage']
         ? jsonData['pageInfo']['totalResults']
