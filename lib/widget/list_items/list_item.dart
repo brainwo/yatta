@@ -1,29 +1,35 @@
 library list_item;
 
+import 'dart:io';
+
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_api/youtube_api.dart';
 import '../../helper.dart';
+import '../../intent.dart';
 import '../../locale/en_us.dart';
+import '../keyboard_navigation.dart';
 
 part 'channel.dart';
 part 'playlist.dart';
 part 'video.dart';
 
-class ListItem extends StatefulWidget {
-  final void Function() onPlay;
-  final void Function() onSave;
-  final Widget child;
-  final String url;
-  final bool autofocus;
+typedef ListItemCallback = void Function(YoutubeVideo);
 
+class ListItem extends StatefulWidget {
   const ListItem({
-    required this.onPlay,
-    required this.onSave,
     required this.child,
-    required this.url,
+    required this.youtubeVideo,
+    this.fromHistory = false,
     this.autofocus = false,
     final Key? key,
   }) : super(key: key);
+
+  final Widget child;
+  final YoutubeVideo youtubeVideo;
+  final bool autofocus;
+  final bool fromHistory;
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -35,7 +41,7 @@ class _ListItemState extends State<ListItem> {
   final _focusNode = FocusNode();
   bool _focused = false;
   bool _hovered = false;
-  bool _showOptions = false;
+  // bool _showOptions = false;
   late final Map<Type, Action<Intent>> _actionMap;
 
   @override
@@ -43,9 +49,15 @@ class _ListItemState extends State<ListItem> {
     super.initState();
     _actionMap = <Type, Action<Intent>>{
       ActivateIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => setState(() => _showOptions = !_showOptions),
+        onInvoke: (final _) async => _openMenuFlyout(),
       ),
     };
+  }
+
+  @override
+  void dispose() {
+    contextController.dispose();
+    super.dispose();
   }
 
   void _handleFocusHighlight(final bool value) {
@@ -58,6 +70,190 @@ class _ListItemState extends State<ListItem> {
     setState(() {
       _hovered = value;
     });
+  }
+
+  Future<void> _playVideo(final BuildContext context) async {
+    await displayInfoBar(
+      context,
+      builder: (final context, final close) {
+        return InfoBar(
+          title: const Text('Playing'),
+          content: const Text('Playing video on mpv'),
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+          severity: InfoBarSeverity.info,
+        );
+      },
+    );
+
+    await playFromYoutubeVideo(
+      widget.youtubeVideo,
+      fromHistory: widget.fromHistory,
+    );
+  }
+
+  Future<void> _playAudio(final BuildContext context) async {
+    await displayInfoBar(
+      context,
+      builder: (final context, final close) {
+        return InfoBar(
+          title: const Text('Playing'),
+          content: const Text('Playing audio on mpv'),
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+          severity: InfoBarSeverity.info,
+        );
+      },
+    );
+
+    await playFromYoutubeVideo(
+      widget.youtubeVideo,
+      fromHistory: widget.fromHistory,
+      mode: PlayMode.listen,
+    );
+  }
+
+  Future<void> _openPlayer(final BuildContext context) async {
+    await displayInfoBar(
+      context,
+      builder: (final context, final close) {
+        return InfoBar(
+          title: const Text('Opening'),
+          content: const Text('Opening url on mpv'),
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+          severity: InfoBarSeverity.info,
+        );
+      },
+    );
+
+    await Process.start('mpv', [
+      '--ytdl-format=bestvideo[height<=1080]+bestaudio',
+      widget.youtubeVideo.url
+    ]);
+  }
+
+  Future<void> _openMenuFlyout() async {
+    await contextController.showFlyout<dynamic>(
+      dismissWithEsc: true,
+      barrierDismissible: true,
+      dismissOnPointerMoveAway: false,
+      navigatorKey: GlobalKey<NavigatorState>().currentState,
+      autoModeConfiguration: FlyoutAutoConfiguration(
+        preferredMode: FlyoutPlacementMode.bottomCenter,
+      ),
+      builder: (final context) {
+        return KeyboardNavigation(
+          child: MenuFlyout(
+            items: [
+              MenuFlyoutItem(
+                leading: const Icon(FluentIcons.play),
+                text: const Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'P',
+                        style: TextStyle(decoration: TextDecoration.underline),
+                      ),
+                      TextSpan(text: 'lay'),
+                    ],
+                  ),
+                ),
+                onPressed: () => _playVideo(context),
+              ),
+              MenuFlyoutItem(
+                leading: const Icon(FluentIcons.music_in_collection),
+                text: const Text.rich(TextSpan(
+                  text: 'L',
+                  children: [
+                    TextSpan(
+                      text: 'i',
+                      style: TextStyle(decoration: TextDecoration.underline),
+                    ),
+                    TextSpan(text: 'sten'),
+                  ],
+                )),
+                onPressed: () => _playAudio(context),
+              ),
+              MenuFlyoutItem(
+                leading: const Icon(FluentIcons.heart),
+                text: const Text.rich(TextSpan(children: [
+                  TextSpan(
+                    text: 'F',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                  TextSpan(text: 'avorite'),
+                ])),
+                onPressed: () {},
+              ),
+              const MenuFlyoutSeparator(),
+              MenuFlyoutItem(
+                text: const Text.rich(
+                  TextSpan(
+                    text: 'Cop',
+                    children: [
+                      TextSpan(
+                        text: 'y',
+                        style: TextStyle(decoration: TextDecoration.underline),
+                      ),
+                      TextSpan(text: ' link address'),
+                    ],
+                  ),
+                ),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(
+                    text: widget.youtubeVideo.url,
+                  )).whenComplete(() => displayInfoBar(
+                        context,
+                        builder: (final context, final close) {
+                          return InfoBar(
+                            title: const Text('Copied'),
+                            content: const Text('URL copied to clipboard'),
+                            action: IconButton(
+                              icon: const Icon(FluentIcons.clear),
+                              onPressed: close,
+                            ),
+                            severity: InfoBarSeverity.info,
+                          );
+                        },
+                      ));
+                },
+              ),
+              MenuFlyoutItem(
+                text: const Text.rich(TextSpan(children: [
+                  TextSpan(
+                    text: 'O',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                  TextSpan(text: 'pen in browser'),
+                ])),
+                onPressed: () async {
+                  if (!await launchUrl(Uri.parse(widget.youtubeVideo.url))) {
+                    throw Exception('Could not launch feedback url');
+                  }
+                },
+              ),
+              MenuFlyoutItem(
+                text: const Text.rich(TextSpan(text: 'Open in ', children: [
+                  TextSpan(
+                    text: 'v',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                  TextSpan(text: 'ideo player'),
+                ])),
+                onPressed: () => _openPlayer(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   FocusableActionDetector _content(final BuildContext context) {
@@ -101,183 +297,41 @@ class _ListItemState extends State<ListItem> {
 
   @override
   Widget build(final BuildContext context) {
-    return FlyoutTarget(
-      controller: contextController,
-      child: GestureDetector(
-        onTapDown: (final _) {
-          setState(() => _focused = true);
-        },
-        onTapUp: (final _) {
-          Future.delayed(const Duration(milliseconds: 100), () {
-            setState(() => _focused = false);
-          });
-
-          _focusNode.requestFocus();
-          setState(() => _showOptions = !_showOptions);
-        },
-        onSecondaryTapUp: (final d) async {
-          _focusNode.requestFocus();
-
-          final targetContext = context;
-          final box = targetContext.findRenderObject()! as RenderBox;
-          final position = box.localToGlobal(
-            d.localPosition,
-            ancestor: Navigator.of(context).context.findRenderObject(),
-          );
-
-          await contextController.showFlyout<dynamic>(
-            barrierColor: Colors.transparent,
-            position: position,
-            builder: (final context) {
-              return FlyoutContent(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 160),
-                  child: CommandBar(
-                    overflowBehavior: CommandBarOverflowBehavior.wrap,
-                    primaryItems: [
-                      CommandBarButton(
-                        icon: const Icon(FluentIcons.copy),
-                        label: const SizedBox(
-                          width: 120,
-                          child: Text('Copy link address'),
-                        ),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: widget.url));
-                          Navigator.pop(context);
-                        },
-                      ),
-                      CommandBarButton(
-                        icon: const Icon(FluentIcons.save),
-                        label: const SizedBox(
-                          width: 120,
-                          child: Text('Save'),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-        child: Column(
-          children: [
-            _content(context),
-            if (_showOptions)
-              Row(
-                children: [
-                  _ContextButtons(
-                    icon: FluentIcons.heart,
-                    title: 'Favorite',
-                    onPressed: widget.onSave,
-                  ),
-                  _ContextButtons(
-                    icon: FluentIcons.play,
-                    title: 'Play',
-                    onPressed: widget.onPlay,
-                  ),
-                  _ContextButtons(
-                    icon: FluentIcons.copy,
-                    title: 'Copy URL',
-                    onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: widget.url));
-
-                      if (context.mounted) {
-                        await displayInfoBar(
-                          context,
-                          builder: (final context, final close) {
-                            return InfoBar(
-                              title: const Text('Copied'),
-                              content: const Text('URL copied to clipboard'),
-                              action: IconButton(
-                                icon: const Icon(FluentIcons.clear),
-                                onPressed: close,
-                              ),
-                              severity: InfoBarSeverity.info,
-                            );
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ],
-              )
-          ],
+    return Actions(
+      actions: {
+        PlayVideoIntent: CallbackAction<Intent>(
+          onInvoke: (final _) async => _playVideo(context),
         ),
-      ),
-    );
-  }
-}
-
-class _ContextButtons extends StatefulWidget {
-  final IconData icon;
-  final String title;
-  final void Function() onPressed;
-
-  const _ContextButtons({
-    required this.icon,
-    required this.title,
-    required this.onPressed,
-  });
-
-  @override
-  State<_ContextButtons> createState() => _ContextButtonsState();
-}
-
-class _ContextButtonsState extends State<_ContextButtons> {
-  bool _focused = false;
-  bool _hovered = false;
-  late final Map<Type, Action<Intent>> _actionMap;
-
-  @override
-  void initState() {
-    super.initState();
-    _actionMap = <Type, Action<Intent>>{
-      ActivateIntent: CallbackAction<Intent>(
-        onInvoke: (final _) => widget.onPressed(),
-      ),
-    };
-  }
-
-  void _handleFocusHighlight(final bool value) {
-    setState(() {
-      _focused = value;
-    });
-  }
-
-  void _handleHoverHighlight(final bool value) {
-    setState(() {
-      _hovered = value;
-    });
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        child: FocusableActionDetector(
-          actions: _actionMap,
-          onShowFocusHighlight: _handleFocusHighlight,
-          onShowHoverHighlight: _handleHoverHighlight,
-          mouseCursor: SystemMouseCursors.click,
-          child: ColoredBox(
-            color: switch ((_focused, _hovered)) {
-              (true, _) => FluentTheme.of(context).activeColor,
-              (_, true) => Colors.white.withOpacity(0.1),
-              _ => Colors.transparent,
+        ListenVideoIntent: CallbackAction<Intent>(
+          onInvoke: (final _) async => _playAudio(context),
+        ),
+      },
+      child: Shortcuts(
+        shortcuts: {
+          const SingleActivator(LogicalKeyboardKey.keyP):
+              const PlayVideoIntent(),
+          const SingleActivator(LogicalKeyboardKey.keyI):
+              const ListenVideoIntent(),
+        },
+        child: FlyoutTarget(
+          controller: contextController,
+          child: GestureDetector(
+            onTapDown: (final _) {
+              setState(() => _focused = true);
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(widget.icon, size: 12),
-                  const SizedBox(width: 16),
-                  Text(widget.title),
-                ],
-              ),
+            onTapUp: (final _) {
+              _focusNode.requestFocus();
+            },
+            onSecondaryTapDown: (final d) async {
+              _focusNode.requestFocus();
+              await _openMenuFlyout();
+            },
+            child: Shortcuts(
+              shortcuts: {
+                const SingleActivator(LogicalKeyboardKey.escape):
+                    const NavigationPopIntent(),
+              },
+              child: _content(context),
             ),
           ),
         ),

@@ -21,49 +21,49 @@ String timeSince(final DateTime startTime, final DateTime endTime) {
   final minutes = duration.inMinutes.abs();
   final seconds = duration.inSeconds.abs();
 
-  var buff = '';
+  final buff = StringBuffer();
 
   if (!duration.isNegative) {
-    buff += 'in ';
+    buff.write('in ');
   }
 
   if (days >= daysInYear * 2) {
-    buff += '${(days / daysInYear).floor()} years';
+    buff.write('${(days / daysInYear).floor()} years');
   } else if (days >= daysInYear) {
-    buff += '1 year';
+    buff.write('1 year');
   } else if (days >= daysInMonth * 2) {
-    buff += '${(days / daysInMonth).floor()} months';
+    buff.write('${(days / daysInMonth).floor()} months');
   } else if (days >= daysInMonth) {
-    buff += '1 month';
+    buff.write('1 month');
   } else if (days >= daysInWeek * 2) {
-    buff += '${(days / daysInWeek).floor()} weeks';
+    buff.write('${(days / daysInWeek).floor()} weeks');
   } else if (days >= daysInWeek) {
-    buff += '1 week';
+    buff.write('1 week');
   } else if (days >= 2) {
-    buff += '$days days';
+    buff.write('$days days');
   } else if (days == 1) {
-    buff += '1 day';
+    buff.write('1 day');
   } else if (hours >= 2) {
-    buff += '$hours hours';
+    buff.write('$hours hours');
   } else if (hours == 1) {
-    buff += '$hours hour';
+    buff.write('$hours hour');
   } else if (minutes >= 2) {
-    buff += '$minutes minutes';
+    buff.write('$minutes minutes');
   } else if (minutes == 1) {
-    buff += '1 minute';
+    buff.write('1 minute');
   } else if (seconds >= 2) {
-    buff += '$seconds seconds';
+    buff.write('$seconds seconds');
   } else if (seconds == 1) {
-    buff += '1 second';
+    buff.write('1 second');
   } else {
-    buff += 'less than a second';
+    buff.write('less than a second');
   }
 
   if (duration.isNegative) {
-    buff += ' ago';
+    buff.write(' ago');
   }
 
-  return buff;
+  return buff.toString();
 }
 
 List<String> _defaultData(final Object fromObject, final String command) {
@@ -121,12 +121,21 @@ Future<void> playFromUrl(final String url) async {
   for (final command in commands) {
     final parsedCommand = _defaultData(url, command);
 
-    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+    await Process.start(
+      parsedCommand[0],
+      [...parsedCommand.skip(1)],
+      mode: ProcessStartMode.detached,
+    );
   }
 }
 
-Future<void> playFromYoutubeVideo(final YoutubeVideo youtubeVideo,
-    {final bool fromHistory = false}) async {
+enum PlayMode { play, listen }
+
+Future<void> playFromYoutubeVideo(
+  final YoutubeVideo youtubeVideo, {
+  final bool fromHistory = false,
+  final PlayMode mode = PlayMode.play,
+}) async {
   final prefs = await SharedPreferences.getInstance();
 
   if (!fromHistory && (prefs.getBool('enable_history') ?? true)) {
@@ -142,14 +151,21 @@ Future<void> playFromYoutubeVideo(final YoutubeVideo youtubeVideo,
     await prefs.setStringList('history', historyQueue.toList());
   }
 
-  final commands = prefs.getStringList('video_play_commands');
+  final commands = switch (mode) {
+    PlayMode.play => prefs.getStringList('video_play_commands'),
+    PlayMode.listen => prefs.getStringList('video_listen_commands'),
+  };
 
   if (commands == null) return;
 
   for (final command in commands) {
     final parsedCommand = _defaultData(youtubeVideo, command);
 
-    await Process.start(parsedCommand[0], [...parsedCommand.skip(1)]);
+    await Process.start(
+      parsedCommand[0],
+      [...parsedCommand.skip(1)],
+      mode: ProcessStartMode.detached,
+    );
   }
 }
 
@@ -209,6 +225,7 @@ List<String> parseCommand(
 
     if (command[i] == '"') {
       inQuotationMark = !inQuotationMark;
+      continue;
     }
 
     buff.last += command[i];

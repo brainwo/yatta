@@ -26,7 +26,7 @@ class ListItemChannel extends StatelessWidget {
                   width: 100,
                   height: 100,
                   errorBuilder: (final _, final __, final ___) => Container(
-                      width: 180,
+                      width: 100,
                       height: 100,
                       color: FluentTheme.of(context).inactiveColor),
                 ),
