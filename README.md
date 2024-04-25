@@ -66,6 +66,50 @@ Available variable to use includes:
 | `thumbnail`   | Medium size image                                            | `https://i.ytimg.com/vi/qWNQUvIk954/mqdefault.jpg`                                                                           |
 | `icon`        | Small size image                                             | `https://i.ytimg.com/vi/qWNQUvIk954/default.jpg`                                                                             |
 
+### Keyboard Navigation
+
+| Key                            | Function                                          |
+| ------------------------------ | ------------------------------------------------- |
+| `h`, `j`, `k`, `l`             | Move right, down, up, left                        |
+| `p`                            | Play video                                        |
+| `o`                            | Listen video                                      |
+| `ctrl` `k` / `ctrl` `l` / `F2` | Focus on search bar                               |
+| `?`                            | [#21](https://github.com/brainwo/yatta/issues/21) |
+
+### Configuring Yatta from a text editor [#20](https://github.com/brainwo/yatta/issues/20)
+
+Looking for editing your Yatta configuration from a text editor? We got you covered.
+
+Yatta uses [YAML](https://yaml.org/) for the configuration file. Which is compatible with JSON, meaning you can use JSON if you prefer it over YAML.
+
+Configuration file will be read based on this prority list:
+
+```
+$XDG_CONFIG_HOME/yatta/config.yaml
+$XDG_CONFIG_HOME/yatta/config.json
+$HOME/.config/yatta/config.yaml
+$HOME/.config/yatta/config.json
+/etc/yatta/config.yaml
+/etc/yatta/config.json
+```
+
+A user configuration file should be created if you changed the application configuration within the application.
+If you need to make a new user configuration file, simply create a new file in `$XDG_CONFIG_HOME)/yatta/config.yaml`[\*](https://wiki.archlinux.org/title/XDG_Base_Directory).
+
+#### (Optional) Setup your language server
+
+Install and configure [`yaml-languague-server`](https://github.com/redhat-developer/yaml-language-server) for your editor.
+
+Add this line to the top of your configuration file:
+
+```yaml
+# yaml-language-server: $schema=https://gist.githubusercontent.com/brainwo/7eeddb3b5ae171ed1c86c28df1ff6c01/raw/schema.json
+```
+
+#### Documentation
+
+[#22](https://github.com/brainwo/yatta/issues/22)
+
 ## Building from source
 
 This program is written using Flutter. For installation guide, please refer to [official Flutter's setup guide](https://docs.flutter.dev/get-started/install/linux/desktop). No additional build dependencies required beside the dependencies required by Flutter.
