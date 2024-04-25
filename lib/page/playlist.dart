@@ -46,9 +46,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
       actions: _actionMap,
       child: NavigationView(
         appBar: NavigationAppBar(
-          title: TextBox(
-            focusNode: searchBarFocus,
-            placeholder: 'Search from saved playlist',
+          title: SizedBox(
+            height: 36,
+            child: TextBox(
+              focusNode: searchBarFocus,
+              placeholder: 'Search from saved playlist',
+            ),
           ),
         ),
         content: KeyboardNavigation(
@@ -61,8 +64,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 final historyList = snapshot.data!
                     .map((final e) => YoutubeVideo.fromString(e))
                     .toList();
-
-                final timeNow = DateTime.now();
 
                 return ListView.builder(
                   itemCount: historyList.length,
@@ -79,7 +80,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           duration: youtubeVideo.duration!,
                           thumbnailUrl: youtubeVideo.thumbnail.medium.url,
                           publishedAt: youtubeVideo.publishedAt,
-                          timeNow: timeNow,
                         ),
                       'channel' => ListItemChannel(
                           channelTitle: youtubeVideo.channelTitle,
@@ -96,10 +96,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
                     return ListItem(
                         autofocus: index == 0,
-                        onPlay: () async => playFromYoutubeVideo(youtubeVideo,
-                            fromHistory: true),
-                        onSave: () {},
-                        url: youtubeVideo.url,
+                        fromHistory: true,
+                        youtubeVideo: youtubeVideo,
                         child: listItem);
                   },
                 );

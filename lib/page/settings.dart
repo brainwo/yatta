@@ -1,3 +1,4 @@
+import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,6 +53,9 @@ class SettingsPage extends StatelessWidget {
               const videoPlayCommandsKey = 'video_play_commands';
               final videoPlayCommandsValue =
                   snapshot.data?.getStringList(videoPlayCommandsKey);
+              const videoListenCommandsKey = 'video_listen_commands';
+              final videoListenCommandsValue =
+                  snapshot.data?.getStringList(videoListenCommandsKey);
               const youtubeAPIKeyKey = 'youtube_api_key';
               final youtubeAPIKeyValue =
                   snapshot.data?.getString(youtubeAPIKeyKey);
@@ -73,7 +77,7 @@ class SettingsPage extends StatelessWidget {
                       .firstOrNull
                   : null;
 
-              return ListView(
+              return AutoscrollListView(
                 children: [
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -123,6 +127,17 @@ class SettingsPage extends StatelessWidget {
                     onChanged: (final List<String> newValue) async {
                       await snapshot.data
                           ?.setStringList(videoPlayCommandsKey, newValue);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _SettingItem(
+                    key: UniqueKey(),
+                    label: 'Video listen commands:',
+                    value: videoListenCommandsValue ?? [''],
+                    multiline: true,
+                    onChanged: (final List<String> newValue) async {
+                      await snapshot.data
+                          ?.setStringList(videoListenCommandsKey, newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -520,7 +535,7 @@ class _SettingItemState<T> extends State<_SettingItem<T>> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 146,
+            width: 152,
             height: 32,
             child: Align(
               alignment: Alignment.centerLeft,

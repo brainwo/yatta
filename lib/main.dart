@@ -12,11 +12,11 @@ import 'model/setting_options.dart';
 import 'model/state.dart';
 import 'model/theme.dart';
 import 'page/history.dart';
+import 'page/home.dart';
 import 'page/playlist.dart';
 import 'page/settings.dart';
 import 'widget/search_error.dart';
 import 'widget/search_result.dart';
-import 'widget/welcome_message.dart';
 
 void main() {
   runApp(const ProviderScope(child: ThemedApp()));
@@ -71,8 +71,7 @@ class App extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: FluentApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Yatta',
+        title: 'Yatta Video Search',
         shortcuts: {
           ...WidgetsApp.defaultShortcuts,
           const SingleActivator(LogicalKeyboardKey.f6):
@@ -83,12 +82,14 @@ class App extends StatelessWidget {
               const SearchBarFocusIntent(),
           const SingleActivator(LogicalKeyboardKey.keyL, control: true):
               const SearchBarFocusIntent(),
+          const SingleActivator(LogicalKeyboardKey.slash):
+              const SearchBarFocusIntent(),
+          const SingleActivator(LogicalKeyboardKey.f2):
+              const SearchBarFocusIntent(),
           // TODO: currently typing `q` in a text field is impossible with this
           // implementation
           // const SingleActivator(LogicalKeyboardKey.keyQ):
           // const NavigationPopIntent(),
-          const SingleActivator(LogicalKeyboardKey.escape):
-              const NavigationPopIntent(),
         },
         theme: (appTheme.brightness == Brightness.light
                 ? FluentThemeData.light()
@@ -132,13 +133,15 @@ class App extends StatelessWidget {
           navigationPaneTheme: NavigationPaneThemeData(
             backgroundColor: appTheme.backgroundDarker,
           ),
-          resources: appTheme.brightness == Brightness.light
-              ? ResourceDictionary.light(
-                  controlFillColorInputActive: appTheme.background,
-                )
-              : ResourceDictionary.dark(
-                  controlFillColorInputActive: appTheme.background,
-                ),
+          menuColor: appTheme.background,
+          resources: switch (appTheme.brightness) {
+            Brightness.light => ResourceDictionary.light(
+                controlFillColorInputActive: appTheme.background,
+              ),
+            Brightness.dark => ResourceDictionary.dark(
+                controlFillColorInputActive: appTheme.background,
+              ),
+          },
         ),
         routes: {
           '/': (final _) => const HomePage(),
@@ -394,46 +397,51 @@ class _TopBarState extends State<_TopBar> {
 
   @override
   Widget build(final BuildContext context) {
-    return Row(
-      children: [
-        if (searchBoxMode.isSearchCategory)
-          _SearchModeIndicator(searchBoxMode: searchBoxMode),
-        Expanded(
-          child: KeyboardListener(
-            focusNode: FocusNode(
-              skipTraversal: true,
-              onKey: (final _, final event) {
+    return SizedBox(
+      height: 36,
+      child: Row(
+        children: [
+          if (searchBoxMode.isSearchCategory)
+            _SearchModeIndicator(searchBoxMode: searchBoxMode),
+          Expanded(
+            child: KeyboardListener(
+              autofocus: true,
+              onKeyEvent: (final event) {
                 final removeSearchCategory = searchBoxMode.isSearchCategory &&
-                    event.isKeyPressed(LogicalKeyboardKey.backspace) &&
+                    HardwareKeyboard.instance
+                        .isLogicalKeyPressed(LogicalKeyboardKey.backspace) &&
                     textBoxController.text == '';
 
                 if (removeSearchCategory) {
                   setState(() {
                     searchBoxMode = SearchBoxMode.all;
                   });
-                  return KeyEventResult.handled;
                 }
-
-                return KeyEventResult.ignored;
               },
-            ),
-            child: TextBox(
-              focusNode: widget.focusNode,
-              autocorrect: false,
-              placeholder: searchBoxMode.isSearchCategory
-                  ? AppString.searchPlaceholder
-                  : AppString.searchPlaceholderAll,
-              controller: textBoxController,
-              onSubmitted: _handleTopBar,
+              focusNode: FocusNode(
+                skipTraversal: true,
+              ),
+              child: TextBox(
+                focusNode: widget.focusNode,
+                autocorrect: false,
+                placeholder: searchBoxMode.isSearchCategory
+                    ? AppString.searchPlaceholder
+                    : AppString.searchPlaceholderAll,
+                controller: textBoxController,
+                onSubmitted: _handleTopBar,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: searchButton(),
-        )
-      ],
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: SizedBox(
+              height: double.maxFinite,
+              child: searchButton(),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

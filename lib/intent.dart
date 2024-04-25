@@ -15,3 +15,11 @@ class SearchBarFocusIntent extends Intent {
 class NavigationPopIntent extends Intent {
   const NavigationPopIntent();
 }
+
+class PlayVideoIntent extends Intent {
+  const PlayVideoIntent();
+}
+
+class ListenVideoIntent extends Intent {
+  const ListenVideoIntent();
+}

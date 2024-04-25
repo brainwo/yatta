@@ -10,32 +10,36 @@ class KeyboardNavigation extends StatelessWidget {
   /// to add more actions, use this property. No need more [Actions].
   final Map<Type, Action<Intent>>? additionalActions;
 
+  final Map<ShortcutActivator, Intent>? additionalShortcuts;
+
   const KeyboardNavigation({
     required this.child,
     super.key,
     this.additionalActions,
+    this.additionalShortcuts,
   });
 
   @override
   Widget build(final BuildContext context) {
-    return Shortcuts(
-      shortcuts: {
-        const SingleActivator(
-          LogicalKeyboardKey.keyH,
-        ): const DirectionalFocusIntent(TraversalDirection.left),
-        const SingleActivator(
-          LogicalKeyboardKey.keyJ,
-        ): const DirectionalFocusIntent(TraversalDirection.down),
-        const SingleActivator(
-          LogicalKeyboardKey.keyK,
-        ): const DirectionalFocusIntent(TraversalDirection.up),
-        const SingleActivator(LogicalKeyboardKey.keyL):
-            const DirectionalFocusIntent(TraversalDirection.right),
+    return Actions(
+      actions: {
+        DirectionalFocusIntent: DirectionalFocusAction(),
+        ...?additionalActions
       },
-      child: Actions(
-        actions: {
-          DirectionalFocusIntent: DirectionalFocusAction(),
-          ...?additionalActions
+      child: Shortcuts(
+        shortcuts: {
+          const SingleActivator(
+            LogicalKeyboardKey.keyH,
+          ): const DirectionalFocusIntent(TraversalDirection.left),
+          const SingleActivator(
+            LogicalKeyboardKey.keyJ,
+          ): const DirectionalFocusIntent(TraversalDirection.down),
+          const SingleActivator(
+            LogicalKeyboardKey.keyK,
+          ): const DirectionalFocusIntent(TraversalDirection.up),
+          const SingleActivator(LogicalKeyboardKey.keyL):
+              const DirectionalFocusIntent(TraversalDirection.right),
+          ...?additionalShortcuts,
         },
         child: child,
       ),

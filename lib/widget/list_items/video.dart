@@ -7,7 +7,6 @@ class ListItemVideo extends StatelessWidget {
   final String? thumbnailUrl;
   final String? publishedAt;
   final String duration;
-  final DateTime timeNow;
 
   const ListItemVideo({
     required this.title,
@@ -15,13 +14,13 @@ class ListItemVideo extends StatelessWidget {
     required this.description,
     required this.duration,
     required this.publishedAt,
-    required this.timeNow,
     final Key? key,
     this.thumbnailUrl,
   }) : super(key: key);
 
   @override
   Widget build(final BuildContext context) {
+    final timeNow = DateTime.now();
     return Row(
       children: [
         if (thumbnailUrl!.isNotEmpty)

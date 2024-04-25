@@ -3,20 +3,22 @@ description: A multipurpose YouTube frontend for hackers
 
 publish_to: "none"
 
-version: 0.1.0
+version: 0.0.0
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  fluent_ui: ^4.7.0
+  autoscroll:
+    path: package/autoscroll/
+  fluent_ui: ^4.7.3
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.3.6
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
   youtube_api:
-    path: ../youtube_api/
+    path: package/youtube_api/
 
 dev_dependencies:
   custom_lint:
