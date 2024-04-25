@@ -27,14 +27,14 @@
 
 ## User guide
 
-#### YouTube API key
+### YouTube API key
 
 Read the guide [here](https://developers.google.com/youtube/v3/getting-started). Once you obtain the API key, go to `Settings > YouTube API Settings > API key` and add the API key.
 
 > [!NOTE]  
 > This API key will be good daily personal usage. For detailed breakdown on how YouTube Data API quota is calculated, read [ YouTube Data API (v3) - Quota Calculator](https://developers.google.com/youtube/v3/determine_quota_cost). You can adjust how the app consume this quota in `Settings > YouTube API Settings` by disabling/limiting few features.
 
-#### Playing videos
+### Playing videos
 
 Example below shows a guide to play video from Chromium web browser:
 
