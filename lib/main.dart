@@ -68,6 +68,55 @@ class App extends StatelessWidget {
       _ => AppTheme.arcDark(),
     };
 
+    final fluentThemeData = switch (appTheme.brightness) {
+      Brightness.light => FluentThemeData.light(),
+      Brightness.dark => FluentThemeData.dark(),
+    };
+
+    final themeData = fluentThemeData.copyWith(
+      accentColor: appTheme.primary.toAccentColor(),
+      activeColor: appTheme.primary,
+      buttonTheme: ButtonThemeData(
+        defaultButtonStyle: ButtonStyle(
+          foregroundColor: ButtonState.resolveWith((final states) {
+            if (states.isPressing) return Colors.white;
+            return null;
+          }),
+          backgroundColor: ButtonState.resolveWith(
+            (final states) {
+              if (states.isPressing) return appTheme.primary;
+              if (states.isHovering) return appTheme.backgroundHighlight;
+              return appTheme.background;
+            },
+          ),
+        ),
+      ),
+      infoBarTheme: InfoBarThemeData(
+        decoration: (final _) {
+          return BoxDecoration(
+            color: appTheme.background,
+          );
+        },
+      ),
+      tooltipTheme: TooltipThemeData(
+        preferBelow: true,
+        showDuration: Duration.zero,
+        waitDuration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          color: appTheme.background.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        textStyle: const TextStyle(fontSize: 14),
+      ),
+      navigationPaneTheme: NavigationPaneThemeData(
+        backgroundColor: appTheme.backgroundDarker,
+      ),
+      menuColor: appTheme.background,
+      resources: ResourceDictionary.light(
+        controlFillColorInputActive: appTheme.background,
+      ),
+    );
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: FluentApp(
@@ -91,58 +140,17 @@ class App extends StatelessWidget {
           // const SingleActivator(LogicalKeyboardKey.keyQ):
           // const NavigationPopIntent(),
         },
-        theme: (appTheme.brightness == Brightness.light
-                ? FluentThemeData.light()
-                : FluentThemeData.dark())
-            .copyWith(
-          brightness: appTheme.brightness,
-          accentColor: appTheme.primary.toAccentColor(),
-          activeColor: appTheme.primary,
-          buttonTheme: ButtonThemeData(
-            defaultButtonStyle: ButtonStyle(
-              foregroundColor: ButtonState.resolveWith((final states) {
-                if (states.isPressing) return Colors.white;
-                return null;
-              }),
-              backgroundColor: ButtonState.resolveWith(
-                (final states) {
-                  if (states.isPressing) return appTheme.primary;
-                  if (states.isHovering) return appTheme.backgroundHighlight;
-                  return appTheme.background;
-                },
-              ),
-            ),
+        theme: themeData,
+        darkTheme: themeData.copyWith(
+          resources: ResourceDictionary.dark(
+            controlFillColorInputActive: appTheme.background,
           ),
-          infoBarTheme: InfoBarThemeData(
-            decoration: (final _) {
-              return BoxDecoration(
-                color: appTheme.background,
-              );
-            },
-          ),
-          tooltipTheme: TooltipThemeData(
-            preferBelow: true,
-            showDuration: Duration.zero,
-            waitDuration: const Duration(milliseconds: 150),
-            decoration: BoxDecoration(
-              color: appTheme.background.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            textStyle: const TextStyle(fontSize: 14),
-          ),
-          navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: appTheme.backgroundDarker,
-          ),
-          menuColor: appTheme.background,
-          resources: switch (appTheme.brightness) {
-            Brightness.light => ResourceDictionary.light(
-                controlFillColorInputActive: appTheme.background,
-              ),
-            Brightness.dark => ResourceDictionary.dark(
-                controlFillColorInputActive: appTheme.background,
-              ),
-          },
         ),
+        themeMode: switch (brightnessMode) {
+          BrightnessOptions.light => ThemeMode.light,
+          BrightnessOptions.dark => ThemeMode.dark,
+          BrightnessOptions.system => ThemeMode.dark,
+        },
         routes: {
           '/': (final _) => const HomePage(),
           '/playlist': (final _) => const PlaylistPage(),
