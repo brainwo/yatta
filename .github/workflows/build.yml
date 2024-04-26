@@ -1,0 +1,58 @@
+name: Build release tag
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Create ${{ matrix.os }} build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        target: [Linux]
+        include:
+          - os: ubuntu-latest
+            target: Linux
+            build_target: linux
+            build_path: build/linux/x64/release/bundle
+            asset_name: linux_amd64
+            asset_extension: .tar.gz
+            asset_content_type: application/gzip
+      fail-fast: false
+    steps:
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-flie: pubspec.yaml
+      - name: Install Linux dependencies
+        if: matrix.target == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build libgtk-3-dev libstdc++-12-dev
+      - uses: actions/checkout@v2
+      - run: |
+          flutter config --enable-linux-desktop
+          flutter config --no-analytics
+          dart --disable-analytics
+          flutter config --no-enable-android
+          flutter config --no-enable-web
+      - run: flutter doctor -v
+      - run: flutter pub get
+      - run: dart fix --apply --code=unnecessary_final
+      - run: flutter build -v ${{ matrix.build_target }} --release
+      - name: Compress build for Linux
+        if: matrix.target == 'Linux'
+        run: tar czf $GITHUB_WORKSPACE/yatta_${{ matrix.build_target }}${{ matrix.asset_extension }} *
+        working-directory: ${{ matrix.build_path }}
+      - name: Upload the artifact to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: Release ${{ github.ref_name }}
+          file: yatta_${{ matrix.build_target }}${{ matrix.asset_extension }}
+          tag: ${{ github.ref }}
+          asset_name: yatta_${{ github.ref_name }}_${{ matrix.asset_name }}${{ matrix.asset_extension }}
+          overwrite: true
