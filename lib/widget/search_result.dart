@@ -4,7 +4,7 @@ import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
 
-import '../helper.dart';
+import '../helper/command_parser.dart';
 import 'keyboard_navigation.dart';
 import 'list_items/list_item.dart';
 

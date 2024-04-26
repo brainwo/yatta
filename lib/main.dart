@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import 'const.dart';
-import 'helper.dart';
+import 'helper/command_parser.dart';
 import 'intent.dart';
 import 'locale/en_us.dart';
 import 'model/setting_options.dart';

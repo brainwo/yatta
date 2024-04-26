@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import '../../intent.dart';
-import '../helper.dart';
+import '../helper/command_parser.dart';
 import '../widget/keyboard_navigation.dart';
 import '../widget/list_items/list_item.dart';
 
