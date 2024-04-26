@@ -5,3 +5,4 @@
 scopes:
   i18n: stuffs related to internationalization
   theme: colors, text style, etc
+  readme: changing readme file
