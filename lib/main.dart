@@ -1,14 +1,13 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import 'const.dart';
 import 'helper/command_parser.dart';
-import 'helper/config.dart';
 import 'intent.dart';
 import 'locale/en_us.dart';
+import 'model/config.dart';
 import 'model/setting_options.dart';
 import 'model/state.dart';
 import 'model/theme.dart';
@@ -40,11 +39,11 @@ class _ThemedAppState extends ConsumerState<ThemedApp> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       final intialBrightnessMode = ref.read(brightnessModeProvider);
-      final prefs = await Configuration()
-          .loadSchema()
-          .then((final value) => value.theme.brightness);
-      if (prefs != intialBrightnessMode) {
-        ref.read(brightnessModeProvider.notifier).switchMode(prefs);
+      final prefs = await UserConfig.load();
+      final userBrightness = prefs.theme.brightness;
+
+      if (userBrightness != intialBrightnessMode) {
+        ref.read(brightnessModeProvider.notifier).switchMode(userBrightness);
       }
     });
 
@@ -229,7 +228,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final prefs = await Configuration().loadSchema();
+    final prefs = await UserConfig.load();
 
     final apiKey = prefs.youtube?.apiKey;
     final maxResults = prefs.youtube?.resultPerSearch;

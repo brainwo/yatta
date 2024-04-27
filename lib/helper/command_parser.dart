@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
-import 'config.dart';
+import '../model/config.dart';
 
 List<String> _defaultData(final Object fromObject, final String command) {
   late final String url;
@@ -91,7 +91,7 @@ Future<void> playFromYoutubeVideo(
     await prefs.setStringList('history', historyQueue.toList());
   }
 
-  final config = await Configuration().loadSchema();
+  final config = await UserConfig.load();
 
   final commands = switch (mode) {
     PlayMode.play => config.videoPlayCommand,

@@ -17,6 +17,7 @@ dependencies:
   flutter_riverpod: ^2.3.6
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
+  yaml_edit: ^2.2.0
   youtube_api:
     path: package/youtube_api/
 
