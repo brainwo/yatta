@@ -51,7 +51,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: Release ${{ github.ref_name }}
           file: yatta_${{ matrix.build_target }}${{ matrix.asset_extension }}
           tag: ${{ github.ref }}
           asset_name: yatta_${{ github.ref_name }}_${{ matrix.asset_name }}${{ matrix.asset_extension }}
