@@ -2,9 +2,11 @@ library search_result;
 
 import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import '../helper/command_parser.dart';
+import '../intent.dart';
 import 'keyboard_navigation.dart';
 import 'list_items/list_item.dart';
 
@@ -25,10 +27,36 @@ class SearchResult extends StatefulWidget {
 }
 
 class _SearchResultState extends State<SearchResult> {
+  final scrollController = ScrollController();
+  late final actions = {
+    ScrollMoveTopIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => scrollController.jumpTo(
+        scrollController.position.minScrollExtent,
+      ),
+    ),
+    ScrollMoveBottomIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => scrollController.jumpTo(
+        scrollController.position.maxScrollExtent,
+      ),
+    )
+  };
+  final shortcuts = {
+    const SingleActivator(
+      LogicalKeyboardKey.keyG,
+    ): const ScrollMoveTopIntent(),
+    const SingleActivator(
+      LogicalKeyboardKey.keyG,
+      shift: true,
+    ): const ScrollMoveBottomIntent(),
+  };
+
   @override
   Widget build(final BuildContext context) {
     return KeyboardNavigation(
+      additionalActions: actions,
+      additionalShortcuts: shortcuts,
       child: AutoscrollListView.builder(
+        controller: scrollController,
         itemCount: widget.result.length + 1,
         itemBuilder: (final context, final index) {
           if (index == widget.result.length) {
