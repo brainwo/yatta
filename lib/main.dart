@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
@@ -18,7 +19,12 @@ import 'page/settings.dart';
 import 'widget/search_error.dart';
 import 'widget/search_result.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Window.initialize().whenComplete(() async => Window.setEffect(
+        effect: WindowEffect.transparent,
+      ));
+
   runApp(const ProviderScope(child: ThemedApp()));
 }
 
@@ -130,8 +136,8 @@ class App extends StatelessWidget {
             ),
             textStyle: const TextStyle(fontSize: 14),
           ),
-          navigationPaneTheme: NavigationPaneThemeData(
-            backgroundColor: appTheme.backgroundDarker,
+          navigationPaneTheme: const NavigationPaneThemeData(
+            backgroundColor: Color(0x880d1926),
           ),
           menuColor: appTheme.background,
           resources: switch (appTheme.brightness) {
