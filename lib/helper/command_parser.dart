@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
+import '../model/config.dart';
+
 List<String> _defaultData(final Object fromObject, final String command) {
   late final String url;
   late final String title;
@@ -89,9 +91,11 @@ Future<void> playFromYoutubeVideo(
     await prefs.setStringList('history', historyQueue.toList());
   }
 
+  final config = await UserConfig.load();
+
   final commands = switch (mode) {
-    PlayMode.play => prefs.getStringList('video_play_commands'),
-    PlayMode.listen => prefs.getStringList('video_listen_commands'),
+    PlayMode.play => config.videoPlayCommand,
+    PlayMode.listen => config.videoListenCommand,
   };
 
   if (commands == null) return;

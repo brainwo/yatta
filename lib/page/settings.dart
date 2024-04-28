@@ -2,10 +2,10 @@ import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../intent.dart';
 import '../main.dart';
+import '../model/config.dart';
 import '../model/setting_options.dart';
 
 typedef _TextBoxValue = TextEditingController;
@@ -18,8 +18,7 @@ typedef _ButtonValue = void;
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  static final Future<SharedPreferences> _loadSharedPreferences =
-      SharedPreferences.getInstance();
+  static final Future<UserConfig> _loadUserConfig = UserConfig.load();
 
   static void _navigationPop(final BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -38,44 +37,12 @@ class SettingsPage extends StatelessWidget {
       child: NavigationView(
         appBar: const NavigationAppBar(title: Text('Settings')),
         content: FutureBuilder(
-            future: _loadSharedPreferences,
+            future: _loadUserConfig,
             builder: (final context, final snapshot) {
-              if (!snapshot.hasData) {
+              final userConfig = snapshot.data;
+              if (userConfig == null) {
                 return const Center(child: ProgressBar());
               }
-
-              const minimizedOnLaunchKey = 'minimized_on_launch';
-              final minimizedOnLaunchValue =
-                  snapshot.data?.getBool(minimizedOnLaunchKey);
-              const autoFocusNavigationKey = 'autofocus_navigation';
-              final autoFocusNavigationValue =
-                  snapshot.data?.getBool(autoFocusNavigationKey);
-              const videoPlayCommandsKey = 'video_play_commands';
-              final videoPlayCommandsValue =
-                  snapshot.data?.getStringList(videoPlayCommandsKey);
-              const videoListenCommandsKey = 'video_listen_commands';
-              final videoListenCommandsValue =
-                  snapshot.data?.getStringList(videoListenCommandsKey);
-              const youtubeAPIKeyKey = 'youtube_api_key';
-              final youtubeAPIKeyValue =
-                  snapshot.data?.getString(youtubeAPIKeyKey);
-              const youtubeResultPerSearchKey = 'youtube_result_per_search';
-              final youtubeResultPerSearchValue =
-                  snapshot.data?.getInt(youtubeResultPerSearchKey);
-              const enableHistoryKey = 'enable_history';
-              final enableHistoryValue =
-                  snapshot.data?.getBool(enableHistoryKey);
-              const historyToKeepKey = 'history_to_keep';
-              final historyToKeepValue =
-                  snapshot.data?.getInt(historyToKeepKey);
-              const themeBrightnessKey = 'theme_brightness';
-              final _themeBrightnessData =
-                  snapshot.data?.getString(themeBrightnessKey);
-              final themeBrightnessValue = _themeBrightnessData != null
-                  ? BrightnessOptions.values
-                      .where((final e) => e.name == _themeBrightnessData)
-                      .firstOrNull
-                  : null;
 
               return AutoscrollListView(
                 children: [
@@ -92,10 +59,9 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Minimized on launch:',
-                    value: minimizedOnLaunchValue ?? false,
-                    onChanged: (final bool newValue) async {
-                      await snapshot.data
-                          ?.setBool(minimizedOnLaunchKey, newValue);
+                    value: userConfig.minimizedOnLaunch,
+                    onChanged: (final newValue) async {
+                      await userConfig.updateMinimizedOnLaunch(newValue);
                     },
                     autofocus: true,
                   ),
@@ -103,41 +69,38 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'On play:',
-                    value: OnPlayOptions.nothing,
-                    onChanged: (final _) {
-                      // TODO: implement on play
+                    value: userConfig.onPlay,
+                    onChanged: (final newValue) async {
+                      await userConfig.updateOnPlay(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Autofocus navigation:',
-                    value: autoFocusNavigationValue ?? true,
-                    onChanged: (final bool newValue) async {
-                      await snapshot.data
-                          ?.setBool(autoFocusNavigationKey, newValue);
+                    value: userConfig.autofocusNavigation,
+                    onChanged: (final newValue) async {
+                      await userConfig.updateAutofocusNavigation(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Video play commands:',
-                    value: videoPlayCommandsValue ?? [''],
+                    value: userConfig.videoPlayCommand ?? [''],
                     multiline: true,
-                    onChanged: (final List<String> newValue) async {
-                      await snapshot.data
-                          ?.setStringList(videoPlayCommandsKey, newValue);
+                    onChanged: (final newValue) async {
+                      await userConfig.updateVideoPlayCommand(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Video listen commands:',
-                    value: videoListenCommandsValue ?? [''],
+                    value: userConfig.videoListenCommand ?? [''],
                     multiline: true,
-                    onChanged: (final List<String> newValue) async {
-                      await snapshot.data
-                          ?.setStringList(videoListenCommandsKey, newValue);
+                    onChanged: (final newValue) async {
+                      await userConfig.updateVideoListenCommand(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -155,56 +118,58 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'API key:',
-                    value: youtubeAPIKeyValue ?? '',
+                    value: userConfig.youtube?.apiKey ?? '',
                     sensitive: true,
-                    onChanged: (final String newValue) async {
-                      await snapshot.data
-                          ?.setString(youtubeAPIKeyKey, newValue);
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateApiKey(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
-                      key: UniqueKey(),
-                      label: 'Enable publish date:',
-                      value: true,
-                      onChanged: (final _) {
-                        // TODO: implement publish date
-                      }),
+                    key: UniqueKey(),
+                    label: 'Enable publish date:',
+                    value: userConfig.youtube?.enablePublishDate ?? true,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateEnablePublishDate(newValue);
+                    },
+                  ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Enable watch count:',
-                    value: false,
-                    onChanged: (final _) {
-                      // TODO: implement enable watch count
+                    value: userConfig.youtube?.enableWatchCount ?? false,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateEnableWatchCount(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Result per search:',
-                    value: youtubeResultPerSearchValue ?? 10,
-                    onChanged: (final int newValue) async {
-                      await snapshot.data
-                          ?.setInt(youtubeResultPerSearchKey, newValue);
+                    value: userConfig.youtube?.resultPerSearch ?? 10,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateResultPerSearch(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Infinite scroll search:',
-                    value: false,
-                    onChanged: (final _) {
-                      // TODO: implement Infinite scroll search
+                    value: userConfig.youtube?.infiniteScrollSearch ?? false,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateInfiniteScrollSearch(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Region id:',
-                    value: '',
-                    onChanged: (final _) {
-                      // TODO: implment region id
+                    value: userConfig.youtube?.regionId ?? '',
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateRegionId(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -224,10 +189,13 @@ class SettingsPage extends StatelessWidget {
                     return _SettingItem(
                       key: UniqueKey(),
                       label: 'Brightness:',
-                      value: themeBrightnessValue ?? BrightnessOptions.dark,
-                      onChanged: (final BrightnessOptions newValue) async {
-                        await snapshot.data
-                            ?.setString(themeBrightnessKey, newValue.name);
+                      value: BrightnessOptions.values
+                              .where((final e) =>
+                                  e.name == userConfig.theme.brightness.name)
+                              .firstOrNull ??
+                          BrightnessOptions.dark,
+                      onChanged: (final newValue) async {
+                        await userConfig.theme.updateBrightness(newValue);
                         ref
                             .read(brightnessModeProvider.notifier)
                             .switchMode(newValue);
@@ -238,9 +206,9 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Visual Density:',
-                    value: VisualDensityOptions.adaptive,
-                    onChanged: (final _) {
-                      // TODO: implement visual density options
+                    value: userConfig.theme.visualDensity,
+                    onChanged: (final newValue) async {
+                      await userConfig.theme.updateVisualDensity(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -258,18 +226,18 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Pause history:',
-                    value: !(enableHistoryValue ?? true),
+                    value: userConfig.history.pause,
                     onChanged: (final newValue) async {
-                      await snapshot.data?.setBool(enableHistoryKey, newValue);
+                      await userConfig.history.updatePause(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'History to keep:',
-                    value: historyToKeepValue ?? 200,
+                    value: userConfig.history.size,
                     onChanged: (final newValue) async {
-                      await snapshot.data?.setInt(historyToKeepKey, newValue);
+                      await userConfig.history.updateSize(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
@@ -278,7 +246,7 @@ class SettingsPage extends StatelessWidget {
                       label: 'Remove history:',
                       value: _ButtonValue,
                       onChanged: (final _) async {
-                        await snapshot.data?.setStringList('history', []);
+                        // await snapshot.data?.setStringList('history', []);
                       }),
                   const SizedBox(height: 16),
                 ],
