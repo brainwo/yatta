@@ -12,28 +12,41 @@ const List<String> configPathLookup = [
   '/yatta/config.json',
 ];
 
+abstract class YamlConfig {
+  YamlConfig({
+    final String? filePath,
+    final String? rawFile,
+  })  : _filePath = filePath ?? '${configHome.path}${configPathLookup[0]}',
+        _rawFile = rawFile ?? '';
+
+  final String _filePath;
+  String _rawFile;
+
+  Future<void> _update(
+    final Iterable<Object?> path,
+    final Object? value,
+  ) async {
+    final yamlEditor = YamlEditor(_rawFile)..update(path, value);
+    _rawFile = yamlEditor.toString();
+    await File(_filePath).writeAsString(_rawFile);
+  }
+}
+
 /// Yatta configuration file
 /// Configuration schema for [Yatta](https://github.com/yatta/yatta), on-demand video organizer application"
-class UserConfig {
+class UserConfig extends YamlConfig {
   UserConfig({
     required this.minimizedOnLaunch,
     required this.onPlay,
     required this.autofocusNavigation,
     required this.theme,
     required this.history,
-    final String? filePath,
-    final String? rawFile,
     this.videoPlayCommand,
     this.videoListenCommand,
     this.youtube,
-  })  : _filePath = filePath ?? '${configHome.path}${configPathLookup[0]}',
-        _rawFile = rawFile ?? '';
-
-  /// Path of user configuration
-  String _filePath;
-
-  /// Raw YAML file
-  String _rawFile;
+    super.filePath,
+    super.rawFile,
+  });
 
   /// Launch application in minimized mode
   bool minimizedOnLaunch;
@@ -64,8 +77,8 @@ class UserConfig {
       minimizedOnLaunch: false,
       onPlay: OnPlayOptions.nothing,
       autofocusNavigation: true,
-      theme: const _ConfigTheme(),
-      history: const _ConfigHistory(),
+      theme: _ConfigTheme(),
+      history: _ConfigHistory(),
     );
   }
 
@@ -124,9 +137,21 @@ class UserConfig {
       autofocusNavigation: autofocusNavigation ?? true,
       videoPlayCommand: videoPlayCommand,
       videoListenCommand: videoListenCommand,
-      theme: _ConfigTheme.fromMap(theme),
-      youtube: _ConfigYoutube.fromMap(youtube),
-      history: _ConfigHistory.fromMap(history),
+      youtube: _ConfigYoutube.fromMap(
+        filePath: filePath,
+        rawFile: rawFile,
+        youtube: youtube,
+      ),
+      theme: _ConfigTheme.fromMap(
+        filePath: filePath,
+        rawFile: rawFile,
+        theme: theme,
+      ),
+      history: _ConfigHistory.fromMap(
+        filePath: filePath,
+        rawFile: rawFile,
+        history: history,
+      ),
     );
   }
 
@@ -146,15 +171,6 @@ class UserConfig {
           json: loadYaml(rawFile),
           rawFile: rawFile,
         ));
-  }
-
-  Future<void> _update(
-    final Iterable<Object?> path,
-    final Object? value,
-  ) async {
-    final yamlEditor = YamlEditor(_rawFile)..update(path, value);
-    _rawFile = yamlEditor.toString();
-    await File(_filePath).writeAsString(_rawFile);
   }
 
   Future<void> updateMinimizedOnLaunch(final bool newValue) async =>
@@ -179,39 +195,47 @@ class UserConfig {
 }
 
 /// YouTube related configuration.
-class _ConfigYoutube {
-  const _ConfigYoutube({
+class _ConfigYoutube extends YamlConfig {
+  _ConfigYoutube({
     required this.apiKey,
     this.enablePublishDate = true,
     this.enableWatchCount = false,
     this.resultPerSearch = 10,
     this.infiniteScrollSearch = false,
     this.regionId,
+    super.filePath,
+    super.rawFile,
   });
 
   /// YouTube Data API v3 API key
-  final String apiKey;
+  String apiKey;
 
   /// Show Publish Date on search result (might cost more quota)
-  final bool enablePublishDate;
+  bool enablePublishDate;
 
   /// Show Watch Count on search result (might cost more quota)
-  final bool enableWatchCount;
+  bool enableWatchCount;
 
   /// Number of results fetched on each API call
-  final int resultPerSearch;
+  int resultPerSearch;
 
   /// Enable infinite scroll on YouTube search (will cost more quota when
   /// enabled)
-  final bool infiniteScrollSearch;
+  bool infiniteScrollSearch;
 
   /// Region of the search results
-  final String? regionId;
+  String? regionId;
 
-  factory _ConfigYoutube.fromMap(final Map<dynamic, dynamic>? youtube) =>
+  factory _ConfigYoutube.fromMap({
+    required final String filePath,
+    required final String rawFile,
+    final Map<dynamic, dynamic>? youtube,
+  }) =>
       youtube == null
-          ? const _ConfigYoutube(apiKey: '')
+          ? _ConfigYoutube(apiKey: '')
           : _ConfigYoutube(
+              filePath: filePath,
+              rawFile: rawFile,
               apiKey: switch (youtube['apiKey']) {
                 final String apiKey => apiKey,
                 _ => '',
@@ -235,23 +259,56 @@ class _ConfigYoutube {
               regionId: switch (youtube['regionId']) {
                 final String regionId => regionId,
                 _ => null,
-              });
+              },
+            );
+
+  Future<void> updateApiKey(final String newValue) async =>
+      _update(['youtube', 'apiKey'], newValue)
+          .whenComplete(() => this.apiKey = newValue);
+
+  Future<void> updateEnablePublishDate(final bool newValue) async =>
+      _update(['youtube', 'enablePublishDate'], newValue)
+          .whenComplete(() => this.enablePublishDate = newValue);
+
+  Future<void> updateEnableWatchCount(final bool newValue) async =>
+      _update(['youtube', 'enableWatchCount'], newValue)
+          .whenComplete(() => this.enableWatchCount = newValue);
+
+  Future<void> updateResultPerSearch(final int newValue) async =>
+      _update(['youtube', 'resultPerSearch'], newValue)
+          .whenComplete(() => this.resultPerSearch = newValue);
+
+  Future<void> updateInfiniteScrollSearch(final bool newValue) async =>
+      _update(['youtube', 'infiniteScrollSearch'], newValue)
+          .whenComplete(() => this.infiniteScrollSearch = newValue);
+
+  Future<void> updateRegionId(final String newValue) async =>
+      _update(['youtube', 'regionId'], newValue)
+          .whenComplete(() => this.regionId = newValue);
 }
 
 /// Application theme related configuration.
-class _ConfigTheme {
-  const _ConfigTheme({
+class _ConfigTheme extends YamlConfig {
+  _ConfigTheme({
     this.brightness = BrightnessOptions.system,
     this.visualDensity = VisualDensityOptions.standard,
+    super.filePath,
+    super.rawFile,
   });
 
-  final BrightnessOptions brightness;
-  final VisualDensityOptions visualDensity;
+  BrightnessOptions brightness;
+  VisualDensityOptions visualDensity;
 
-  factory _ConfigTheme.fromMap(final Map<dynamic, dynamic>? theme) =>
+  factory _ConfigTheme.fromMap({
+    required final String filePath,
+    required final String rawFile,
+    final Map<dynamic, dynamic>? theme,
+  }) =>
       theme == null
-          ? const _ConfigTheme()
+          ? _ConfigTheme()
           : _ConfigTheme(
+              filePath: filePath,
+              rawFile: rawFile,
               brightness: switch (theme['brightness']) {
                 'light' => BrightnessOptions.light,
                 'dark' => BrightnessOptions.dark,
@@ -265,25 +322,41 @@ class _ConfigTheme {
                 'adaptive' => VisualDensityOptions.adaptive,
                 _ => VisualDensityOptions.adaptive,
               });
+
+  Future<void> updateBrightness(final BrightnessOptions newValue) async =>
+      _update(['theme', 'brightness'], newValue.name)
+          .whenComplete(() => this.brightness = newValue);
+
+  Future<void> updateVisualDensity(final VisualDensityOptions newValue) async =>
+      _update(['theme', 'visualDensity'], newValue.name)
+          .whenComplete(() => this.visualDensity = newValue);
 }
 
 /// History and Saved Playlist related configuration.
-class _ConfigHistory {
-  const _ConfigHistory({
+class _ConfigHistory extends YamlConfig {
+  _ConfigHistory({
     this.pause = false,
     this.size = 2000,
+    super.filePath,
+    super.rawFile,
   });
 
   /// Pause history, not receiving any more new playback history.
-  final bool pause;
+  bool pause;
 
   /// Number of history to keep
-  final int size;
+  int size;
 
-  factory _ConfigHistory.fromMap(final Map<dynamic, dynamic>? history) =>
+  factory _ConfigHistory.fromMap({
+    required final String filePath,
+    required final String rawFile,
+    final Map<dynamic, dynamic>? history,
+  }) =>
       history == null
-          ? const _ConfigHistory()
+          ? _ConfigHistory()
           : _ConfigHistory(
+              filePath: filePath,
+              rawFile: rawFile,
               pause: switch (history['pause']) {
                 final bool pause => pause,
                 _ => false,
@@ -293,4 +366,12 @@ class _ConfigHistory {
                 _ => 2000,
               },
             );
+
+  Future<void> updatePause(final bool newValue) async =>
+      _update(['history', 'pause'], newValue)
+          .whenComplete(() => this.pause = newValue);
+
+  Future<void> updateSize(final int newValue) async =>
+      _update(['history', 'size'], newValue)
+          .whenComplete(() => this.size = newValue);
 }

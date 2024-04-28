@@ -44,8 +44,6 @@ class SettingsPage extends StatelessWidget {
                 return const Center(child: ProgressBar());
               }
 
-              final _themeBrightnessData = userConfig.theme.brightness;
-
               return AutoscrollListView(
                 children: [
                   const Padding(
@@ -62,7 +60,7 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'Minimized on launch:',
                     value: userConfig.minimizedOnLaunch,
-                    onChanged: (final bool newValue) async {
+                    onChanged: (final newValue) async {
                       await userConfig.updateMinimizedOnLaunch(newValue);
                     },
                     autofocus: true,
@@ -72,7 +70,7 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'On play:',
                     value: userConfig.onPlay,
-                    onChanged: (final OnPlayOptions newValue) async {
+                    onChanged: (final newValue) async {
                       await userConfig.updateOnPlay(newValue);
                     },
                   ),
@@ -81,7 +79,7 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'Autofocus navigation:',
                     value: userConfig.autofocusNavigation,
-                    onChanged: (final bool newValue) async {
+                    onChanged: (final newValue) async {
                       await userConfig.updateAutofocusNavigation(newValue);
                     },
                   ),
@@ -91,7 +89,7 @@ class SettingsPage extends StatelessWidget {
                     label: 'Video play commands:',
                     value: userConfig.videoPlayCommand ?? [''],
                     multiline: true,
-                    onChanged: (final List<String> newValue) async {
+                    onChanged: (final newValue) async {
                       await userConfig.updateVideoPlayCommand(newValue);
                     },
                   ),
@@ -101,7 +99,7 @@ class SettingsPage extends StatelessWidget {
                     label: 'Video listen commands:',
                     value: userConfig.videoListenCommand ?? [''],
                     multiline: true,
-                    onChanged: (final List<String> newValue) async {
+                    onChanged: (final newValue) async {
                       await userConfig.updateVideoListenCommand(newValue);
                     },
                   ),
@@ -122,26 +120,28 @@ class SettingsPage extends StatelessWidget {
                     label: 'API key:',
                     value: userConfig.youtube?.apiKey ?? '',
                     sensitive: true,
-                    onChanged: (final String newValue) async {
-                      // await snapshot.data
-                      // ?.setString(youtubeAPIKeyKey, newValue);
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateApiKey(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
-                      key: UniqueKey(),
-                      label: 'Enable publish date:',
-                      value: true,
-                      onChanged: (final _) {
-                        // TODO: implement publish date
-                      }),
+                    key: UniqueKey(),
+                    label: 'Enable publish date:',
+                    value: userConfig.youtube?.enablePublishDate ?? true,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateEnablePublishDate(newValue);
+                    },
+                  ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Enable watch count:',
-                    value: false,
-                    onChanged: (final _) {
-                      // TODO: implement enable watch count
+                    value: userConfig.youtube?.enableWatchCount ?? false,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateEnableWatchCount(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
@@ -149,27 +149,27 @@ class SettingsPage extends StatelessWidget {
                     key: UniqueKey(),
                     label: 'Result per search:',
                     value: userConfig.youtube?.resultPerSearch ?? 10,
-                    onChanged: (final int newValue) async {
-                      // await snapshot.data
-                      // ?.setInt(youtubeResultPerSearchKey, newValue);
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateResultPerSearch(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Infinite scroll search:',
-                    value: false,
-                    onChanged: (final _) {
-                      // TODO: implement Infinite scroll search
+                    value: userConfig.youtube?.infiniteScrollSearch ?? false,
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube
+                          ?.updateInfiniteScrollSearch(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Region id:',
-                    value: '',
-                    onChanged: (final _) {
-                      // TODO: implment region id
+                    value: userConfig.youtube?.regionId ?? '',
+                    onChanged: (final newValue) async {
+                      await userConfig.youtube?.updateRegionId(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -191,12 +191,11 @@ class SettingsPage extends StatelessWidget {
                       label: 'Brightness:',
                       value: BrightnessOptions.values
                               .where((final e) =>
-                                  e.name == _themeBrightnessData.name)
+                                  e.name == userConfig.theme.brightness.name)
                               .firstOrNull ??
                           BrightnessOptions.dark,
-                      onChanged: (final BrightnessOptions newValue) async {
-                        // await snapshot.data
-                        // ?.setString(themeBrightnessKey, newValue.name);
+                      onChanged: (final newValue) async {
+                        await userConfig.theme.updateBrightness(newValue);
                         ref
                             .read(brightnessModeProvider.notifier)
                             .switchMode(newValue);
@@ -207,9 +206,9 @@ class SettingsPage extends StatelessWidget {
                   _SettingItem(
                     key: UniqueKey(),
                     label: 'Visual Density:',
-                    value: VisualDensityOptions.adaptive,
-                    onChanged: (final _) {
-                      // TODO: implement visual density options
+                    value: userConfig.theme.visualDensity,
+                    onChanged: (final newValue) async {
+                      await userConfig.theme.updateVisualDensity(newValue);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -229,7 +228,7 @@ class SettingsPage extends StatelessWidget {
                     label: 'Pause history:',
                     value: userConfig.history.pause,
                     onChanged: (final newValue) async {
-                      // await snapshot.data?.setBool(enableHistoryKey, newValue);
+                      await userConfig.history.updatePause(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
@@ -238,7 +237,7 @@ class SettingsPage extends StatelessWidget {
                     label: 'History to keep:',
                     value: userConfig.history.size,
                     onChanged: (final newValue) async {
-                      // await snapshot.data?.setInt(historyToKeepKey, newValue);
+                      await userConfig.history.updateSize(newValue);
                     },
                   ),
                   const SizedBox(height: 8),
