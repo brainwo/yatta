@@ -16,6 +16,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.3.6
+  rss_dart:
+    path: ../rss.dart/
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
   yaml_edit: ^2.2.0

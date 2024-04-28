@@ -46,7 +46,9 @@ class WelcomeMessage extends StatelessWidget {
                 title: 'Feed',
                 subtitle: 'Subsribe to channels via RSS Feed',
                 icon: FluentIcons.content_feed,
-                onPressed: () {},
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed('/feed');
+                },
               ),
               _SelectionMenu(
                 key: const Key('history'),
