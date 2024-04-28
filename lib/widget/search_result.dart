@@ -86,9 +86,7 @@ class _SearchResultState extends State<SearchResult> {
           };
 
           return ListItem(
-              autofocus: index == 0,
-              youtubeVideo: youtubeVideo,
-              child: listItem);
+              autofocus: index == 0, url: youtubeVideo.url, child: listItem);
         },
       ),
     );

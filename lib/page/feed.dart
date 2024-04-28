@@ -86,8 +86,11 @@ class _FeedPageState extends State<FeedPage> {
     if (filteredList == null) return;
     setState(() {
       filteredList = feedList
-          ?.where((final e) =>
-              e.toString().toLowerCase().contains(keyword.toLowerCase()))
+          ?.where((final e) => [
+                e.media?.title?.value ?? '',
+                e.authors.first.name ?? '',
+                e.media?.group?.description?.value ?? ''
+              ].join(' ').toLowerCase().contains(keyword.toLowerCase()))
           .toList();
     });
   }
@@ -127,11 +130,9 @@ class _FeedPageState extends State<FeedPage> {
                 publishedAt: youtubeVideo.published ?? '',
               );
 
-              return listItem;
-
               return ListItem(
                 autofocus: index == 0,
-                youtubeVideo: YoutubeVideo(''),
+                url: youtubeVideo.links.firstOrNull?.href ?? '',
                 fromHistory: true,
                 child: listItem,
               );

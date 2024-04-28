@@ -85,6 +85,7 @@ class _VideoThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: Image.network(
             thumbnailUrl!,
+            fit: BoxFit.cover,
             width: 180,
             height: 100,
             errorBuilder: (final _, final __, final ___) => Container(

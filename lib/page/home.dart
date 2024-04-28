@@ -223,7 +223,7 @@ class _HomeVideoThumbnail extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     return ListItem(
-      youtubeVideo: youtubeVideo,
+      url: youtubeVideo.url,
       fromHistory: true,
       child: SizedBox(
         width: 220,
