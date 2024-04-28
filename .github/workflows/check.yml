@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "**.dart"
   pull_request:
     types:
       - opened
