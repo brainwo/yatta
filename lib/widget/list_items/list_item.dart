@@ -42,7 +42,6 @@ class _ListItemState extends State<ListItem> {
   final _focusNode = FocusNode();
   bool _focused = false;
   bool _hovered = false;
-  // bool _showOptions = false;
   late final Map<Type, Action<Intent>> _actionMap;
 
   @override
@@ -89,10 +88,7 @@ class _ListItemState extends State<ListItem> {
       },
     );
 
-    await playFromUrl(
-      widget.url,
-      // fromHistory: widget.fromHistory,
-    );
+    await playFromUrl(widget.url);
   }
 
   Future<void> _playAudio(final BuildContext context) async {

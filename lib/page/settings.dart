@@ -2,7 +2,9 @@ import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yaml/yaml.dart' as yaml;
 
+import '../helper/feed.dart';
 import '../intent.dart';
 import '../main.dart';
 import '../model/config.dart';
@@ -18,7 +20,10 @@ typedef _ButtonValue = void;
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  static final Future<UserConfig> _loadUserConfig = UserConfig.load();
+  static final Future<List<dynamic>> _futureList = Future.wait([
+    UserConfig.load(),
+    loadFeedList(),
+  ]);
 
   static void _navigationPop(final BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -37,12 +42,31 @@ class SettingsPage extends StatelessWidget {
       child: NavigationView(
         appBar: const NavigationAppBar(title: Text('Settings')),
         content: FutureBuilder(
-            future: _loadUserConfig,
+            future: _futureList,
             builder: (final context, final snapshot) {
-              final userConfig = snapshot.data;
-              if (userConfig == null) {
+              final data = snapshot.data;
+              if (data == null || data.isEmpty) {
                 return const Center(child: ProgressBar());
               }
+
+              final userConfig = switch (data.first) {
+                final UserConfig userConfig => userConfig,
+                _ => null,
+              };
+              final feedList = switch (data.last) {
+                final String feedList => feedList,
+                _ => null,
+              };
+
+              if (userConfig == null || feedList == null) {
+                return const SizedBox();
+              }
+
+              final parsedFeedList = switch (yaml.loadYaml(feedList)) {
+                final List<dynamic> urls =>
+                  urls.map((final url) => url.toString()).toList(),
+                _ => ['']
+              };
 
               return AutoscrollListView(
                 children: [
@@ -170,6 +194,27 @@ class SettingsPage extends StatelessWidget {
                     value: userConfig.youtube?.regionId ?? '',
                     onChanged: (final newValue) async {
                       await userConfig.youtube?.updateRegionId(newValue);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    child: Row(
+                      children: [
+                        Icon(FluentIcons.content_feed),
+                        SizedBox(width: 16),
+                        Text('Feed Settings'),
+                      ],
+                    ),
+                  ),
+                  _SettingItem(
+                    key: UniqueKey(),
+                    label: 'Feed List:',
+                    value: parsedFeedList,
+                    multiline: true,
+                    onChanged: (final newValue) async {
+                      await updateFeedList(feedList, newValue);
                     },
                   ),
                   const SizedBox(height: 16),

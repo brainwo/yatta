@@ -1,19 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:autoscroll/autoscroll.dart';
 import 'package:collection/collection.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:http/http.dart' as http;
 import 'package:rss_dart/dart_rss.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:xdg_directories/xdg_directories.dart' as xdg;
 import 'package:yaml/yaml.dart' as yaml;
-import 'package:youtube_api/youtube_api.dart';
 
 import '../../intent.dart';
-import '../const.dart';
-import '../helper/command_parser.dart';
+import '../helper/feed.dart';
 import '../widget/keyboard_navigation.dart';
 import '../widget/list_items/list_item.dart';
 
@@ -47,14 +42,7 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Future<void> fetchFeed() async {
-    final file = feedPathLookup
-        .map((final path) => File('${xdg.configHome.path}$path'))
-        .firstWhereOrNull((final configLookup) => configLookup.existsSync());
-
-    if (file == null) return;
-
-    final result = await file
-        .readAsString()
+    final rawFeed = await loadFeedList()
         .then((final rawFile) => switch (yaml.loadYaml(rawFile)) {
               final List<dynamic> urls => urls
                   .map((final url) => http.get(Uri.parse(url.toString())))
@@ -64,7 +52,7 @@ class _FeedPageState extends State<FeedPage> {
         .then((final urls) async => Future.wait(urls));
 
     setState(() {
-      feedList = result
+      feedList = rawFeed
           .map((final e) => AtomFeed.parse(e.body))
           .expand((final e) => e.items)
           .sorted((final a, final b) => DateTime.parse(a.published ?? '')
@@ -124,7 +112,6 @@ class _FeedPageState extends State<FeedPage> {
                 channelTitle: youtubeVideo.authors.first.name ?? '',
                 description:
                     youtubeVideo.media?.group?.description?.value ?? '',
-                duration: '00:02',
                 thumbnailUrl:
                     youtubeVideo.media?.group?.thumbnail.firstOrNull?.url ?? '',
                 publishedAt: youtubeVideo.published ?? '',
