@@ -4,13 +4,8 @@ import 'package:xdg_directories/xdg_directories.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
+import '../const.dart';
 import 'setting_options.dart';
-
-const List<String> configPathLookup = [
-  '/yatta/config.yaml',
-  '/yatta/config.yml',
-  '/yatta/config.json',
-];
 
 abstract class YamlConfig {
   YamlConfig({

@@ -6,7 +6,7 @@ publish_to: "none"
 version: 0.0.2
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.0 <4.0.0"
   flutter: 3.19.6
 
 dependencies:
@@ -16,6 +16,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.3.6
+  rss_dart:
+    git: https://github.com/brainwo/rss.dart.git
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
   yaml_edit: ^2.2.0

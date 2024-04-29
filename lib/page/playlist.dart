@@ -97,7 +97,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     return ListItem(
                         autofocus: index == 0,
                         fromHistory: true,
-                        youtubeVideo: youtubeVideo,
+                        url: youtubeVideo.url,
                         child: listItem);
                   },
                 );

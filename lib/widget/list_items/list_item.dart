@@ -21,14 +21,14 @@ typedef ListItemCallback = void Function(YoutubeVideo);
 class ListItem extends StatefulWidget {
   const ListItem({
     required this.child,
-    required this.youtubeVideo,
+    required this.url,
     this.fromHistory = false,
     this.autofocus = false,
     final Key? key,
   }) : super(key: key);
 
   final Widget child;
-  final YoutubeVideo youtubeVideo;
+  final String url;
   final bool autofocus;
   final bool fromHistory;
 
@@ -42,7 +42,6 @@ class _ListItemState extends State<ListItem> {
   final _focusNode = FocusNode();
   bool _focused = false;
   bool _hovered = false;
-  // bool _showOptions = false;
   late final Map<Type, Action<Intent>> _actionMap;
 
   @override
@@ -89,10 +88,7 @@ class _ListItemState extends State<ListItem> {
       },
     );
 
-    await playFromYoutubeVideo(
-      widget.youtubeVideo,
-      fromHistory: widget.fromHistory,
-    );
+    await playFromUrl(widget.url);
   }
 
   Future<void> _playAudio(final BuildContext context) async {
@@ -111,9 +107,9 @@ class _ListItemState extends State<ListItem> {
       },
     );
 
-    await playFromYoutubeVideo(
-      widget.youtubeVideo,
-      fromHistory: widget.fromHistory,
+    await playFromUrl(
+      widget.url,
+      // fromHistory: widget.fromHistory,
       mode: PlayMode.listen,
     );
   }
@@ -134,10 +130,8 @@ class _ListItemState extends State<ListItem> {
       },
     );
 
-    await Process.start('mpv', [
-      '--ytdl-format=bestvideo[height<=1080]+bestaudio',
-      widget.youtubeVideo.url
-    ]);
+    await Process.start(
+        'mpv', ['--ytdl-format=bestvideo[height<=1080]+bestaudio', widget.url]);
   }
 
   Future<void> _openMenuFlyout() async {
@@ -209,7 +203,7 @@ class _ListItemState extends State<ListItem> {
                 ),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(
-                    text: widget.youtubeVideo.url,
+                    text: widget.url,
                   )).whenComplete(() => displayInfoBar(
                         context,
                         builder: (final context, final close) {
@@ -235,7 +229,7 @@ class _ListItemState extends State<ListItem> {
                   TextSpan(text: 'pen in browser'),
                 ])),
                 onPressed: () async {
-                  if (!await launchUrl(Uri.parse(widget.youtubeVideo.url))) {
+                  if (!await launchUrl(Uri.parse(widget.url))) {
                     throw Exception('Could not launch feedback url');
                   }
                 },

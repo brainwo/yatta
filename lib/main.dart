@@ -11,6 +11,7 @@ import 'model/config.dart';
 import 'model/setting_options.dart';
 import 'model/state.dart';
 import 'model/theme.dart';
+import 'page/feed.dart';
 import 'page/history.dart';
 import 'page/home.dart';
 import 'page/playlist.dart';
@@ -147,6 +148,7 @@ class App extends StatelessWidget {
         routes: {
           '/': (final _) => const HomePage(),
           '/playlist': (final _) => const PlaylistPage(),
+          '/feed': (final _) => const FeedPage(),
           '/history': (final _) => const HistoryPage(),
           '/settings': (final _) => const SettingsPage(),
         },

@@ -46,7 +46,10 @@ List<String> _defaultData(final Object fromObject, final String command) {
       icon: icon);
 }
 
-Future<void> playFromUrl(final String url) async {
+Future<void> playFromUrl(
+  final String url, {
+  final PlayMode mode = PlayMode.play,
+}) async {
   final prefs = await SharedPreferences.getInstance();
 
   await prefs.setStringList('history', [
@@ -54,7 +57,12 @@ Future<void> playFromUrl(final String url) async {
     // TODO
   ]);
 
-  final commands = prefs.getStringList('video_play_commands');
+  final config = await UserConfig.load();
+
+  final commands = switch (mode) {
+    PlayMode.play => config.videoPlayCommand,
+    PlayMode.listen => config.videoListenCommand,
+  };
 
   if (commands == null) return;
 

@@ -115,7 +115,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
               return ListItem(
                 autofocus: index == 0,
-                youtubeVideo: youtubeVideo,
+                url: youtubeVideo.url,
                 fromHistory: true,
                 child: listItem,
               );

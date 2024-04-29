@@ -14,25 +14,36 @@ class ListItemPlaylist extends StatelessWidget {
     this.thumbnailUrl,
   }) : super(key: key);
 
+  Container _errorThumbnail(final BuildContext context) {
+    return Container(
+      width: 180,
+      height: 100,
+      color: FluentTheme.of(context).menuColor,
+      child: const Icon(FluentIcons.alert_solid),
+    );
+  }
+
   @override
   Widget build(final BuildContext context) {
+    final thumbnailUrl = this.thumbnailUrl;
+
     return Row(
       children: [
         Stack(
           alignment: Alignment.centerRight,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.network(
-                thumbnailUrl!,
-                width: 180,
-                height: 100,
-                errorBuilder: (final _, final __, final ___) => Container(
-                    width: 180,
-                    height: 100,
-                    color: FluentTheme.of(context).inactiveColor),
-              ),
-            ),
+            thumbnailUrl != null && thumbnailUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.network(
+                      thumbnailUrl,
+                      width: 180,
+                      height: 100,
+                      errorBuilder: (final context, final _, final __) =>
+                          _errorThumbnail(context),
+                    ),
+                  )
+                : _errorThumbnail(context),
             Container(
               width: 60,
               height: 100,
