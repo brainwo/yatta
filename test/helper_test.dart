@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:yatta/helper.dart';
+import 'package:yatta/helper/command_parser.dart';
 
 void main() {
   group('All available', () {
@@ -48,8 +48,8 @@ void main() {
     ];
     const parsedNotifySend = [
       'notify-send',
-      '"Playing video"',
-      '"This is a title\\nThis is a description"',
+      'Playing video',
+      'This is a title\\nThis is a description',
     ];
 
     final helper = (final String command) {
@@ -101,7 +101,7 @@ void main() {
       'background=#1f1f1f'
     ];
     const parsedCurl = ['curl', '--output', '/tmp/notifyicon.png'];
-    const parsedNotifySend = ['notify-send', '"Playing video"', '"\\n"'];
+    const parsedNotifySend = ['notify-send', 'Playing video', '\\n'];
 
     test('xwinwrap', () => expect(parseCommand(xwinwrap), parsedXwinwrap));
     test('kitty', () => expect(parseCommand(kitty), parsedKitty));

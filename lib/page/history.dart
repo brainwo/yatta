@@ -7,6 +7,7 @@ import 'package:youtube_api/youtube_api.dart';
 
 import '../../intent.dart';
 import '../helper/command_parser.dart';
+import '../model/database.dart';
 import '../widget/keyboard_navigation.dart';
 import '../widget/list_items/list_item.dart';
 
@@ -19,8 +20,8 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   final FocusNode searchBarFocus = FocusNode();
-  List<YoutubeVideo>? filteredList;
-  List<YoutubeVideo>? historyList;
+  List<HistoryModel>? filteredList;
+  List<HistoryModel>? historyList;
   late final Map<Type, Action<Intent>> _actionMap = {
     SearchBarFocusIntent: CallbackAction<Intent>(
       onInvoke: (final _) => _requestSearchBarFocus(),
@@ -40,13 +41,10 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> fetchHistory() async {
-    final prefs = await SharedPreferences.getInstance();
+    final database = await HistoryDatabase.load();
 
     setState(() {
-      historyList = prefs
-          .getStringList('history')
-          ?.map((final e) => YoutubeVideo.fromString(e))
-          .toList();
+      historyList = database.history;
       filteredList = historyList;
     });
   }
@@ -91,26 +89,25 @@ class _HistoryPageState extends State<HistoryPage> {
                   filteredList![filteredList!.length - index - 1];
               final title = youtubeVideo.title.parseHtmlEntities();
 
-              final listItem = switch (youtubeVideo.kind) {
-                'video' => ListItemVideo(
+              final listItem = switch (youtubeVideo.type) {
+                ItemType.video => ListItemVideo(
                     title: title,
                     channelTitle: youtubeVideo.channelTitle,
                     description: youtubeVideo.description,
-                    duration: youtubeVideo.duration!,
-                    thumbnailUrl: youtubeVideo.thumbnail.medium.url,
-                    publishedAt: youtubeVideo.publishedAt,
+                    duration: youtubeVideo.duration.toString(),
+                    thumbnailUrl: youtubeVideo.thumbnailUrl,
+                    publishedAt: youtubeVideo.publishDate,
                   ),
-                'channel' => ListItemChannel(
+                ItemType.channel => ListItemChannel(
                     channelTitle: youtubeVideo.channelTitle,
-                    thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                    thumbnailUrl: youtubeVideo.thumbnailUrl,
                   ),
-                'playlist' => ListItemPlaylist(
+                ItemType.playlist => ListItemPlaylist(
                     title: title,
                     channelTitle: youtubeVideo.channelTitle,
                     description: youtubeVideo.description,
-                    thumbnailUrl: youtubeVideo.thumbnail.medium.url,
+                    thumbnailUrl: youtubeVideo.thumbnailUrl,
                   ),
-                _ => const SizedBox.shrink()
               };
 
               return ListItem(

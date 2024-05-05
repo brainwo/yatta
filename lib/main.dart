@@ -8,6 +8,7 @@ import 'helper/command_parser.dart';
 import 'intent.dart';
 import 'locale/en_us.dart';
 import 'model/config.dart';
+import 'model/database.dart';
 import 'model/setting_options.dart';
 import 'model/state.dart';
 import 'model/theme.dart';
@@ -39,6 +40,7 @@ class _ThemedAppState extends ConsumerState<ThemedApp> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
+      await HistoryDatabase.load();
       final intialBrightnessMode = ref.read(brightnessModeProvider);
       final prefs = await UserConfig.load();
       final userBrightness = prefs.theme.brightness;
