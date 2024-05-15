@@ -247,7 +247,7 @@ class _ListBuilderState extends State<ListBuilder> {
   @override
   Widget build(BuildContext context) {
     return AutoscrollListView.builder(
-        autoScrollSpeed: widget.autoscrollSpeed,
+        autoscrollSpeed: widget.autoscrollSpeed,
         itemCount: widget.selectedList.length,
         itemBuilder: (_, int index) {
           return ListTile(

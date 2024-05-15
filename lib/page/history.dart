@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
@@ -19,6 +20,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   final FocusNode searchBarFocus = FocusNode();
+  final ScrollController scrollController = ScrollController();
   List<YoutubeVideo>? filteredList;
   List<YoutubeVideo>? historyList;
   late final Map<Type, Action<Intent>> _actionMap = {
@@ -27,6 +29,16 @@ class _HistoryPageState extends State<HistoryPage> {
     ),
     NavigationPopIntent: CallbackAction<Intent>(
       onInvoke: (final _) => _navigationPop(context),
+    ),
+    ScrollMoveTopIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => scrollController.jumpTo(
+        scrollController.position.minScrollExtent,
+      ),
+    ),
+    ScrollMoveBottomIntent: CallbackAction<Intent>(
+      onInvoke: (final _) => scrollController.jumpTo(
+        scrollController.position.maxScrollExtent,
+      ),
     )
   };
 
@@ -84,7 +96,17 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
         ),
         content: KeyboardNavigation(
+          additionalShortcuts: {
+            const SingleActivator(
+              LogicalKeyboardKey.keyG,
+            ): const ScrollMoveTopIntent(),
+            const SingleActivator(
+              LogicalKeyboardKey.keyG,
+              shift: true,
+            ): const ScrollMoveBottomIntent(),
+          },
           child: AutoscrollListView.builder(
+            controller: scrollController,
             itemCount: filteredList?.length ?? 0,
             itemBuilder: (final context, final index) {
               final youtubeVideo =
