@@ -20,7 +20,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-flie: pubspec.yaml
+          flutter-version-file: pubspec.yaml
       - name: Update dependencies
         run: flutter pub get
       - name: Disable analytics
