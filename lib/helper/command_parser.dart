@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import '../model/config.dart';
+import '../model/database.dart';
 
 List<String> _defaultData(final Object fromObject, final String command) {
   late final String url;
@@ -24,6 +25,14 @@ List<String> _defaultData(final Object fromObject, final String command) {
       preview = fromObject.thumbnail.high.url ?? '';
       thumbnail = fromObject.thumbnail.medium.url ?? '';
       icon = fromObject.thumbnail.small.url ?? '';
+    case HistoryModel():
+      url = fromObject.url;
+      title = fromObject.title;
+      description = fromObject.description;
+      type = fromObject.type.name;
+      preview = fromObject.previewUrl;
+      thumbnail = fromObject.thumbnailUrl;
+      icon = fromObject.iconUrl;
     case String():
       url = fromObject;
       title = '';
@@ -44,6 +53,37 @@ List<String> _defaultData(final Object fromObject, final String command) {
       preview: preview,
       thumbnail: thumbnail,
       icon: icon);
+}
+
+Future<void> playFromHistory(
+  final HistoryModel history, {
+  final PlayMode mode = PlayMode.play,
+}) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  await prefs.setStringList('history', [
+    ...?prefs.getStringList('history'),
+    // TODO
+  ]);
+
+  final config = await UserConfig.load();
+
+  final commands = switch (mode) {
+    PlayMode.play => config.videoPlayCommand,
+    PlayMode.listen => config.videoListenCommand,
+  };
+
+  if (commands == null) return;
+
+  for (final command in commands) {
+    final parsedCommand = _defaultData(history, command);
+
+    await Process.start(
+      parsedCommand[0],
+      [...parsedCommand.skip(1)],
+      mode: ProcessStartMode.detached,
+    );
+  }
 }
 
 Future<void> playFromUrl(
