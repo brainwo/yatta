@@ -1,13 +1,13 @@
 import 'package:test/test.dart';
-import 'package:yatta/util/csv_parser.dart';
+import 'package:yatta/helper/tsv.dart';
 
-const String csv = '''
-id,type,provider,title,description,url,viewCount,channelId,channelTitle,iconUrl,thumbnailUrl,previewUrl,publishDate,duration,history,romanized
-W2muWA-40Uk,video,youtube,三月のパンタシア 『夜光』,三月のパンタシア-夜光 小説「さよならの空はあの青い花の輝きとよく似ていた」(みあ著)主題歌 ...,https://youtu.be/W2muWA-40Uk,,UC4lk0Ob-F3ptOQUUq8s0pzQ,三月のパンタシア Official YouTube Channel,https://i.ytimg.com/vi/W2muWA-40Uk/default.jpg,https://i.ytimg.com/vi/W2muWA-40Uk/mqdefault.jpg,https://i.ytimg.com/vi/W2muWA-40Uk/hqdefault.jpg,2021-07-21T13:00:10Z,03:40,"2021-07-21T13:00:10Z,2022-07-21T13:00:10Z",sangatsu no phantasia yakou sangatsu no phantasia yakou sousetsu sayonara no sora wa ano aoi hana no kagayaki to yoku nite ita mia cho shudaika''';
+const String tsv = '''
+id\ttype\tprovider\ttitle\tdescription\turl\tviewCount\tchannelId\tchannelTitle\ticonUrl\tthumbnailUrl\tpreviewUrl\tpublishDate\tduration\thistory\tromanized
+W2muWA-40Uk\tvideo\tyoutube\t三月のパンタシア 『夜光』\t三月のパンタシア-夜光 小説「さよならの空はあの青い花の輝きとよく似ていた」(みあ著)主題歌 ...\thttps://youtu.be/W2muWA-40Uk\t\tUC4lk0Ob-F3ptOQUUq8s0pzQ\t三月のパンタシア Official YouTube Channel\thttps://i.ytimg.com/vi/W2muWA-40Uk/default.jpg\thttps://i.ytimg.com/vi/W2muWA-40Uk/mqdefault.jpg\thttps://i.ytimg.com/vi/W2muWA-40Uk/hqdefault.jpg\t2021-07-21T13:00:10Z\t03:40\t2021-07-21T13:00:10Z,2022-07-21T13:00:10Z\tsangatsu no phantasia yakou sangatsu no phantasia yakou sousetsu sayonara no sora wa ano aoi hana no kagayaki to yoku nite ita mia cho shudaika''';
 
 void main() {
   group('Parse history', () {
-    const parsedCsv = [
+    const parsedTsv = [
       {
         'id': 'W2muWA-40Uk',
         'type': 'video',
@@ -29,9 +29,6 @@ sangatsu no phantasia yakou sangatsu no phantasia yakou sousetsu sayonara no sor
       }
     ];
 
-    test(
-      'history',
-      () => expect(const CsvParser().parse(csv.split('\n')), parsedCsv),
-    );
+    test('history', () => expect(loadTsv(tsv), parsedTsv));
   });
 }

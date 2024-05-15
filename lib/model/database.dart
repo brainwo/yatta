@@ -1,11 +1,8 @@
 import 'dart:io';
 
-// import 'package:csv/csv.dart';
-// import 'package:csv/csv.dart';
-// import 'package:fast_csv/csv_parser.dart';
 import 'package:xdg_directories/xdg_directories.dart' as xdg;
 
-import '../util/csv_parser.dart';
+import '../helper/tsv.dart';
 
 enum ItemType {
   video,
@@ -19,10 +16,9 @@ class HistoryDatabase {
   final List<HistoryModel> history;
 
   static Future<HistoryDatabase> load({final int? limit}) async {
-    final file = File('${xdg.dataHome.path}/yatta/history.csv');
+    final file = File('${xdg.dataHome.path}/yatta/history.tsv');
     return HistoryDatabase(
-        history: const CsvParser()
-            .parse(await file.readAsLines())
+        history: loadTsv(await file.readAsString())
             .map((final e) => switch (e) {
                   {
                     'id': final String id,
@@ -38,15 +34,15 @@ class HistoryDatabase {
                     'thumbnailUrl': final String thumbnailUrl,
                     'previewUrl': final String previewUrl,
                     'publishDate': final String publishDate,
-                    'duration': _,
-                    'romanizedMetadata': final String romanizedMetadata,
+                    'duration': final String duration,
                     'history': final String history,
+                    'romanizedMetadata': final String romanizedMetadata,
                   } =>
                     HistoryModel(
                       id: id,
                       title: title,
                       description: description,
-                      duration: Duration.zero,
+                      duration: duration,
                       romanizedMetadata: romanizedMetadata,
                       publishDate: publishDate,
                       type: switch (type) {
@@ -119,7 +115,7 @@ class HistoryModel {
 
   /// ISO 8601 format time
   final String publishDate;
-  final Duration duration;
+  final String duration;
 
   /// ISO 8601 format time
   final List<String> history;

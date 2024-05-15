@@ -99,14 +99,12 @@ class _VideoThumbnail extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: thumbnailUrl != null && thumbnailUrl.isNotEmpty
-              ? Image.network(
-                  thumbnailUrl,
+              ? Image.network(thumbnailUrl,
                   fit: BoxFit.cover,
                   width: 180,
                   height: 100,
                   errorBuilder: (final context, final _, final __) =>
-                      _errorThumbnail(context),
-                )
+                      _errorThumbnail(context))
               : _errorThumbnail(context),
         ),
         if (duration != null)

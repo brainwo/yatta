@@ -10,6 +10,7 @@ import '../../helper/command_parser.dart';
 import '../../helper/time.dart';
 import '../../intent.dart';
 import '../../locale/en_us.dart';
+import '../../model/database.dart';
 import '../keyboard_navigation.dart';
 
 part 'channel.dart';
@@ -22,12 +23,14 @@ class ListItem extends StatefulWidget {
   const ListItem({
     required this.child,
     required this.url,
+    this.history,
     this.fromHistory = false,
     this.autofocus = false,
     final Key? key,
   }) : super(key: key);
 
   final Widget child;
+  final HistoryModel? history;
   final String url;
   final bool autofocus;
   final bool fromHistory;
@@ -87,8 +90,12 @@ class _ListItemState extends State<ListItem> {
         );
       },
     );
-
-    await playFromUrl(widget.url);
+    switch (widget.history) {
+      case final HistoryModel history:
+        await playFromHistory(history);
+      case null:
+        await playFromUrl(widget.url);
+    }
   }
 
   Future<void> _playAudio(final BuildContext context) async {
@@ -107,11 +114,12 @@ class _ListItemState extends State<ListItem> {
       },
     );
 
-    await playFromUrl(
-      widget.url,
-      // fromHistory: widget.fromHistory,
-      mode: PlayMode.listen,
-    );
+    switch (widget.history) {
+      case final HistoryModel history:
+        await playFromHistory(history, mode: PlayMode.listen);
+      case null:
+        await playFromUrl(widget.url, mode: PlayMode.listen);
+    }
   }
 
   Future<void> _openPlayer(final BuildContext context) async {
