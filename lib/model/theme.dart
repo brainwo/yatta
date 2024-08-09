@@ -20,33 +20,33 @@ class AppTheme {
   factory AppTheme.arc() {
     return const AppTheme(
       brightness: Brightness.light,
-      background: Color.fromRGBO(255, 255, 255, 1), // #FFFFFF
-      backgroundHighlight: Color.fromRGBO(250, 251, 252, 1), // #FAFBFC
-      backgroundDarker: Color.fromRGBO(245, 246, 247, 1), // #F5F6F7
-      text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
-      primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
+      background: Color(0xFFFFFFFF),
+      backgroundHighlight: Color(0xFFFAFBFC),
+      backgroundDarker: Color(0xFFF5F6F7),
+      text: Color(0xFFD3DAE3),
+      primary: Color(0xFF5294E2),
     );
   }
 
   factory AppTheme.arcDarker() {
     return const AppTheme(
       brightness: Brightness.light,
-      background: Color.fromRGBO(64, 69, 82, 1), // #404552
-      backgroundHighlight: Color.fromRGBO(80, 86, 102, 1), // #505666
-      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F
-      text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
-      primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
+      background: Color(0xFF404552),
+      backgroundHighlight: Color(0xFF505666),
+      backgroundDarker: Color(0xFF2F343F),
+      text: Color(0xFFD3DAE3),
+      primary: Color(0xFF5294E2),
     );
   }
 
   factory AppTheme.arcDark() {
     return const AppTheme(
       brightness: Brightness.dark,
-      background: Color.fromRGBO(64, 69, 82, 1), // #404552
-      backgroundHighlight: Color.fromRGBO(80, 86, 102, 1), // #505666
-      backgroundDarker: Color.fromRGBO(47, 52, 63, 1), // #2F343F
-      text: Color.fromRGBO(211, 218, 227, 1), // #D3DAE3
-      primary: Color.fromRGBO(81, 144, 219, 1), // #5294E2
+      background: Color(0xFF404552),
+      backgroundHighlight: Color(0xFF505666),
+      backgroundDarker: Color(0xFF2F343F),
+      text: Color(0xFFD3DAE3),
+      primary: Color(0xFF5294E2),
     );
   }
 
