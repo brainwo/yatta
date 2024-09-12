@@ -17,7 +17,9 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.3.6
   rss_dart:
-    git: https://github.com/brainwo/rss.dart.git
+    git:
+      url: https://github.com/brainwo/rss.dart.git
+      ref: "d74949d"
   shared_preferences: ^2.1.2
   url_launcher: ^6.1.11
   yaml_edit: ^2.2.0
