@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -87,6 +89,53 @@ class AutoscrollListView extends StatefulWidget {
         ),
         semanticChildCount = semanticChildCount ?? itemCount;
 
+  /// Wrapper to [AutoscrollListView.separated] widget with middle click autoscroll
+  AutoscrollListView.separated({
+    super.key,
+    this.scrollDirection = Axis.vertical,
+    this.reverse = false,
+    ScrollController? controller,
+    this.primary,
+    this.physics,
+    this.shrinkWrap = false,
+    this.padding,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    ChildIndexGetter? findChildIndexCallback,
+    required IndexedWidgetBuilder separatorBuilder,
+    required int itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    this.cacheExtent,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
+    this.restorationId,
+    this.clipBehavior = Clip.hardEdge,
+    this.autoscrollSpeed = 0.25,
+  })  : assert(itemCount >= 0),
+        controller = controller ?? ScrollController(),
+        itemExtent = null,
+        itemExtentBuilder = null,
+        prototypeItem = null,
+        childrenDelegate = SliverChildBuilderDelegate(
+          (BuildContext context, int index) {
+            final int itemIndex = index ~/ 2;
+            if (index.isEven) {
+              return itemBuilder(context, itemIndex);
+            }
+            return separatorBuilder(context, itemIndex);
+          },
+          findChildIndexCallback: findChildIndexCallback,
+          childCount: _computeActualChildCount(itemCount),
+          addAutomaticKeepAlives: addAutomaticKeepAlives,
+          addRepaintBoundaries: addRepaintBoundaries,
+          addSemanticIndexes: addSemanticIndexes,
+          semanticIndexCallback: (Widget widget, int index) {
+            return index.isEven ? index ~/ 2 : null;
+          },
+        ),
+        semanticChildCount = itemCount;
+
   /// Wrapper to [ListView.custom] widget with middle click autoscroll
   AutoscrollListView.custom({
     super.key,
@@ -137,6 +186,11 @@ class AutoscrollListView extends StatefulWidget {
   final int? semanticChildCount;
   final Clip clipBehavior;
   final double autoscrollSpeed;
+
+  // Helper method to compute the actual child count for the separated constructor.
+  static int _computeActualChildCount(int itemCount) {
+    return math.max(0, itemCount * 2 - 1);
+  }
 
   @override
   State<AutoscrollListView> createState() => _AutoscrollListViewState();
