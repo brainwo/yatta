@@ -49,22 +49,17 @@ class SettingsPage extends StatelessWidget {
                 return const Center(child: ProgressBar());
               }
 
-              final userConfig = switch (data.first) {
-                final UserConfig userConfig => userConfig,
-                _ => null,
-              };
-              final feedList = switch (data.last) {
-                final String feedList => feedList,
-                _ => null,
-              };
+              final userConfig = data.first;
+              final feedList = data.last;
 
-              if (userConfig == null || feedList == null) {
+              if (userConfig is! UserConfig || feedList is! String) {
                 return const SizedBox();
               }
 
               final parsedFeedList = switch (yaml.loadYaml(feedList)) {
-                final List<dynamic> urls =>
-                  urls.map((final url) => url.toString()).toList(),
+                final List<dynamic> urls => [
+                    for (final url in urls) url.toString()
+                  ],
                 _ => ['']
               };
 

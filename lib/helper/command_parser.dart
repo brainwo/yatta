@@ -36,14 +36,16 @@ List<String> _defaultData(final Object fromObject, final String command) {
       throw Exception('Unexpected fromObject type');
   }
 
-  return parseCommand(command,
-      url: url,
-      title: title,
-      description: description,
-      type: type,
-      preview: preview,
-      thumbnail: thumbnail,
-      icon: icon);
+  return parseCommand(
+    command,
+    url: url,
+    title: title,
+    description: description,
+    type: type,
+    preview: preview,
+    thumbnail: thumbnail,
+    icon: icon,
+  );
 }
 
 Future<void> playFromUrl(
