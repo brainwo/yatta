@@ -528,7 +528,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
+      ref: d74949d
       resolved-ref: d74949d30ef531d39d32d305cdddbb86586407bc
       url: "https://github.com/brainwo/rss.dart.git"
     source: git
