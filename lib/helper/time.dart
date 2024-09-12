@@ -1,7 +1,8 @@
 /// Used to calculate YouTube video age
 /// Returns [String]
 /// ```dart
-/// timeSince(DateTime., DateTime.now());
+/// start =
+/// print(timeSince(DateTime(2022), DateTime(2023)); // 1 year
 /// ```
 String timeSince(final DateTime startTime, final DateTime endTime) {
   final duration = startTime.difference(endTime);

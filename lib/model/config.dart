@@ -5,6 +5,7 @@ import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 import '../const.dart';
+import '../util/dynamic.dart';
 import 'setting_options.dart';
 
 abstract class YamlConfig {
@@ -82,14 +83,12 @@ class UserConfig extends YamlConfig {
     required final String rawFile,
     required final dynamic json,
   }) {
-    if (!(json is Map)) {
+    if (json is! Map<String, Object>) {
       return UserConfig._defaultConfig();
     }
 
-    final minimizedOnLaunch = switch (json['minimizedOnLaunch']) {
-      final bool value => value,
-      _ => null
-    };
+    final minimizedOnLaunch = json['minimizedOnLaunch']?.unwrapOrNull<bool>();
+
     final onPlay = switch (json['onPlay']) {
       'nothing' => OnPlayOptions.nothing,
       'minimize' => OnPlayOptions.minimize,
@@ -97,10 +96,9 @@ class UserConfig extends YamlConfig {
       'exit' => OnPlayOptions.exit,
       _ => null
     };
-    final autofocusNavigation = switch (json['autofocusNavigation']) {
-      final bool value => value,
-      _ => null
-    };
+    final autofocusNavigation =
+        json['autofocusNavigation']?.unwrapOrNull<bool>();
+
     final videoPlayCommand = switch (json['videoPlayCommand']) {
       final List<dynamic> value =>
         value.map((final command) => command.toString()).toList(),
@@ -111,10 +109,11 @@ class UserConfig extends YamlConfig {
         value.map((final command) => command.toString()).toList(),
       _ => null
     };
-    final youtube = switch (json['youtube']) {
-      final Map<dynamic, dynamic>? value => value,
-      _ => null
-    };
+    final youtube = json['youtube']?.unwrapOrNull<Map<Object, Object>>();
+    // final youtube = switch (json['youtube']) {
+    // final Map<dynamic, dynamic>? value => value,
+    // _ => null
+    // };
     final theme = switch (json['theme']) {
       final Map<dynamic, dynamic>? value => value,
       _ => null
@@ -224,7 +223,7 @@ class _ConfigYoutube extends YamlConfig {
   factory _ConfigYoutube.fromMap({
     required final String filePath,
     required final String rawFile,
-    final Map<dynamic, dynamic>? youtube,
+    final Map<Object, Object>? youtube,
   }) =>
       youtube == null
           ? _ConfigYoutube(apiKey: '')

@@ -72,9 +72,7 @@ class SearchError extends StatelessWidget {
                     message: 'Copy to clipboard',
                     child: Button(
                       child: const Icon(FluentIcons.copy),
-                      onPressed: () async {
-                        await _handleCopyToClipboard(context);
-                      },
+                      onPressed: () async => _handleCopyToClipboard(context),
                     ),
                   ),
                 ),
