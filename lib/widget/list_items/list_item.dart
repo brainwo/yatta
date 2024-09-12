@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_api/youtube_api.dart';
 import '../../helper/command_parser.dart';
 import '../../helper/time.dart';
 import '../../intent.dart';
-import '../../locale/en_us.dart';
 import '../keyboard_navigation.dart';
 
 part 'channel.dart';

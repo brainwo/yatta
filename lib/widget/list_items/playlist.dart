@@ -72,9 +72,9 @@ class ListItemPlaylist extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w300),
                 ),
               const SizedBox(height: 8),
-              const Text(
-                AppString.playlist,
-                style: TextStyle(fontWeight: FontWeight.w300),
+              Text(
+                AppLocalizations.of(context)?.playlist ?? '',
+                style: const TextStyle(fontWeight: FontWeight.w300),
               ),
             ],
           ),

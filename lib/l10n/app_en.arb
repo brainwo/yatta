@@ -1,0 +1,10 @@
+{
+  "noSearchQuery": "No search query",
+  "noResultsFound": "No results were found for this search query",
+  "searchPlaceholderAll": "Search or paste your link here",
+  "searchPlaceholder": "Search...",
+  "errorInformation": "Error: ",
+  "errorTitle": "It appears that there is some kind of error",
+  "video": "Video",
+  "playlist": "Playlist"
+}

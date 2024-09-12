@@ -1,12 +1,13 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_api/youtube_api.dart';
 
 import 'const.dart';
 import 'helper/command_parser.dart';
 import 'intent.dart';
-import 'locale/en_us.dart';
 import 'model/config.dart';
 import 'model/setting_options.dart';
 import 'model/state.dart';
@@ -152,8 +153,11 @@ class App extends StatelessWidget {
           '/history': (final _) => const HistoryPage(),
           '/settings': (final _) => const SettingsPage(),
         },
-        supportedLocales: [
-          const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
         ],
       ),
     );
@@ -200,7 +204,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late YoutubeApi youtubeApi;
-  String noResultString = AppString.noSearchQuery;
+  late String noResultString =
+      AppLocalizations.of(context)?.noSearchQuery ?? '';
   Future<List<YoutubeVideo>>? searchResult;
 
   final FocusNode searchBarFocus = FocusNode();
@@ -304,8 +309,10 @@ class _HomePageState extends State<HomePage> {
                       );
                     } else {
                       // Return error Widget here
-                      return const SearchError(
-                          errorText: AppString.noResultsFound);
+                      return SearchError(
+                          errorText:
+                              AppLocalizations.of(context)?.noResultsFound ??
+                                  '');
                     }
                   },
                 ),
@@ -435,8 +442,8 @@ class _TopBarState extends State<_TopBar> {
                 focusNode: widget.focusNode,
                 autocorrect: false,
                 placeholder: searchBoxMode.isSearchCategory
-                    ? AppString.searchPlaceholder
-                    : AppString.searchPlaceholderAll,
+                    ? AppLocalizations.of(context)?.searchPlaceholder
+                    : AppLocalizations.of(context)?.searchPlaceholderAll,
                 controller: textBoxController,
                 onSubmitted: _handleTopBar,
               ),
