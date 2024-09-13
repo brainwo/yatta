@@ -52,7 +52,7 @@ class _HistoryPageState extends State<HistoryPage> {
     final database = await HistoryDatabase.load();
 
     setState(() {
-      historyList = database.history;
+      historyList = database.history.reversed.toList();
       filteredList = historyList;
     });
   }

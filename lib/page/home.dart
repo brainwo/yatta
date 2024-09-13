@@ -1,11 +1,10 @@
 import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show showLicensePage;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_api/youtube_api.dart';
 
 import '../helper/time.dart';
+import '../model/database.dart';
 import '../widget/keyboard_navigation.dart';
 import '../widget/list_items/list_item.dart';
 
@@ -22,7 +21,7 @@ class WelcomeMessage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32),
         children: [
           const SizedBox(height: 8),
-          RecentHistory(),
+          const RecentHistory(),
           const SizedBox(height: 24),
           Wrap(
             direction: isWide ? Axis.vertical : Axis.horizontal,
@@ -151,15 +150,11 @@ class WelcomeMessage extends StatelessWidget {
 }
 
 class RecentHistory extends StatelessWidget {
-  RecentHistory({
+  const RecentHistory({
     super.key,
   });
 
-  final fetchHistory = SharedPreferences.getInstance().then(
-    (final v) => v.getStringList('history')?.map(
-          (final e) => YoutubeVideo.fromString(e),
-        ),
-  );
+  static final fetchHistory = HistoryDatabase.load(limit: 10);
 
   @override
   Widget build(final BuildContext context) {
@@ -194,11 +189,8 @@ class RecentHistory extends StatelessWidget {
               AutoscrollSingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                    children: snapshot.data!
-                        .toList()
-                        .reversed
-                        .where((final e) => e.kind == 'video')
-                        .take(10)
+                    children: snapshot.data!.history
+                        .where((final e) => e.type == ItemType.video)
                         .map(
                           (final data) =>
                               _HomeVideoThumbnail(youtubeVideo: data),
@@ -218,7 +210,7 @@ class _HomeVideoThumbnail extends StatelessWidget {
     required this.youtubeVideo,
   });
 
-  final YoutubeVideo youtubeVideo;
+  final HistoryModel youtubeVideo;
 
   @override
   Widget build(final BuildContext context) {
@@ -234,26 +226,25 @@ class _HomeVideoThumbnail extends StatelessWidget {
               alignment: AlignmentDirectional.bottomEnd,
               children: [
                 Image.network(
-                  youtubeVideo.thumbnail.medium.url ?? '',
+                  youtubeVideo.thumbnailUrl,
                 ),
-                if (youtubeVideo.duration != null)
-                  Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      child: Text(
-                        youtubeVideo.duration!,
-                        style: const TextStyle(fontSize: 12),
-                      ),
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      youtubeVideo.duration,
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -274,7 +265,7 @@ class _HomeVideoThumbnail extends StatelessWidget {
                 ),
                 Text(
                   ' • ${timeSince(
-                    DateTime.parse(youtubeVideo.publishedAt!),
+                    DateTime.parse(youtubeVideo.publishDate),
                     DateTime.now(),
                   )}',
                   style: const TextStyle(

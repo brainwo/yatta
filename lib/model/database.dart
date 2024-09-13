@@ -10,63 +10,6 @@ enum ItemType {
   channel,
 }
 
-class HistoryDatabase {
-  const HistoryDatabase({required this.history});
-
-  final List<HistoryModel> history;
-
-  static Future<HistoryDatabase> load({final int? limit}) async {
-    final file = File('${xdg.dataHome.path}/yatta/history.tsv');
-    return HistoryDatabase(
-        history: loadTsv(await file.readAsString())
-            .map((final e) => switch (e) {
-                  {
-                    'id': final String id,
-                    'type': final String type,
-                    'provider': final String provider,
-                    'title': final String title,
-                    'description': final String description,
-                    'url': final String url,
-                    'viewCount': final String viewCount,
-                    'channelId': final String channelId,
-                    'channelTitle': final String channelTitle,
-                    'iconUrl': final String iconUrl,
-                    'thumbnailUrl': final String thumbnailUrl,
-                    'previewUrl': final String previewUrl,
-                    'publishDate': final String publishDate,
-                    'duration': final String duration,
-                    'history': final String history,
-                    'romanizedMetadata': final String romanizedMetadata,
-                  } =>
-                    HistoryModel(
-                      id: id,
-                      title: title,
-                      description: description,
-                      duration: duration,
-                      romanizedMetadata: romanizedMetadata,
-                      publishDate: publishDate,
-                      type: switch (type) {
-                        'video' => ItemType.video,
-                        'playlist' => ItemType.playlist,
-                        'channel' => ItemType.channel,
-                        _ => ItemType.video,
-                      },
-                      history: history.split(','),
-                      channelId: channelId,
-                      iconUrl: iconUrl,
-                      thumbnailUrl: thumbnailUrl,
-                      previewUrl: previewUrl,
-                      provider: provider,
-                      channelTitle: channelTitle,
-                      url: url,
-                      viewCount: int.tryParse(viewCount),
-                    ),
-                  _ => throw UnimplementedError(),
-                })
-            .toList());
-  }
-}
-
 class HistoryModel {
   const HistoryModel({
     required this.id,
@@ -104,13 +47,13 @@ class HistoryModel {
   final String channelTitle;
   final String channelId;
 
-  /// Cover image < 120px width
+  /// Cover image < 32px width
   final String iconUrl;
 
-  /// Cover image < 32px width
+  /// Cover image < 48px width
   final String thumbnailUrl;
 
-  /// Cover image < 48px width
+  /// Cover image < 120px width
   final String previewUrl;
 
   /// ISO 8601 format time
@@ -122,4 +65,81 @@ class HistoryModel {
 
   /// Search friendly string
   final String romanizedMetadata;
+}
+
+class HistoryDatabase {
+  const HistoryDatabase({required this.history});
+
+  final List<HistoryModel> history;
+
+  static Future<HistoryDatabase> load({final int? limit}) async {
+    final file = File('${xdg.dataHome.path}/yatta/history.tsv');
+
+    final historyList = <HistoryModel>[];
+
+    for (final (index, line)
+        in loadTsv(await file.readAsString()).reversed.indexed) {
+      // TODO: implement string line read limit
+      if (limit != null && index >= limit) break;
+
+      if (line
+          case {
+            'id': final String id,
+            'type': final String type,
+            'provider': final String provider,
+            'title': final String title,
+            'description': final String description,
+            'url': final String url,
+            'viewCount': final String viewCount,
+            'channelId': final String channelId,
+            'channelTitle': final String channelTitle,
+            'iconUrl': final String iconUrl,
+            'thumbnailUrl': final String thumbnailUrl,
+            'previewUrl': final String previewUrl,
+            'publishDate': final String publishDate,
+            'duration': final String duration,
+            'history': final String history,
+            'romanizedMetadata': final String romanizedMetadata,
+          }) {
+        historyList.add(
+          HistoryModel(
+            id: id,
+            title: title,
+            description: description,
+            duration: duration,
+            romanizedMetadata: romanizedMetadata,
+            publishDate: publishDate,
+            type: switch (type) {
+              'video' => ItemType.video,
+              'playlist' => ItemType.playlist,
+              'channel' => ItemType.channel,
+              _ => ItemType.video,
+            },
+            history: history.split(','),
+            channelId: channelId,
+            iconUrl: iconUrl,
+            thumbnailUrl: thumbnailUrl,
+            previewUrl: previewUrl,
+            provider: provider,
+            channelTitle: channelTitle,
+            url: url,
+            viewCount: int.tryParse(viewCount),
+          ),
+        );
+        continue;
+      }
+
+      print('Unable to parse history, index $index, data $line');
+    }
+
+    return HistoryDatabase(history: historyList);
+  }
+
+  void append(final HistoryModel history) {
+    // TODO:
+  }
+
+  Future<void> write() async {
+    // TODO:
+  }
 }

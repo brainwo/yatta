@@ -90,12 +90,9 @@ Future<void> playFromUrl(
   final String url, {
   final PlayMode mode = PlayMode.play,
 }) async {
-  final prefs = await SharedPreferences.getInstance();
+  // final database = await HistoryDatabase.load();
 
-  await prefs.setStringList('history', [
-    ...?prefs.getStringList('history'),
-    // TODO
-  ]);
+  // TODO
 
   final config = await UserConfig.load();
 
@@ -124,6 +121,8 @@ Future<void> playFromYoutubeVideo(
   final bool fromHistory = false,
   final PlayMode mode = PlayMode.play,
 }) async {
+  // final database = await HistoryDatabase.load();
+
   final prefs = await SharedPreferences.getInstance();
 
   if (!fromHistory && (prefs.getBool('enable_history') ?? true)) {
