@@ -129,7 +129,13 @@ class WelcomeMessage extends StatelessWidget {
                   cursor: SystemMouseCursors.click,
                   child: HyperlinkButton(
                     onPressed: () {
-                      showLicensePage(context: context);
+                      showLicensePage(
+                        context: context,
+                        applicationVersion: const String.fromEnvironment(
+                          'APPLICATION_VERSION',
+                          defaultValue: 'development',
+                        ),
+                      );
                     },
                     child: const Text(
                       'License',

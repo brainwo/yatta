@@ -43,7 +43,7 @@ jobs:
       - run: flutter doctor -v
       - run: flutter pub get
       - run: dart fix --apply --code=unnecessary_final
-      - run: flutter build -v ${{ matrix.build_target }} --release
+      - run: flutter build -v ${{ matrix.build_target }} --dart-define=APPLICATION_VERSION=${{ github.ref_name }} --release
       - name: Compress build for Linux
         if: matrix.target == 'Linux'
         run: tar czf $GITHUB_WORKSPACE/yatta_${{ matrix.build_target }}${{ matrix.asset_extension }} *
