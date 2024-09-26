@@ -23,3 +23,12 @@ class PlayVideoIntent extends Intent {
 class ListenVideoIntent extends Intent {
   const ListenVideoIntent();
 }
+
+class ScrollMoveTopIntent extends Intent{
+  const ScrollMoveTopIntent();
+}
+
+class ScrollMoveBottomIntent extends Intent{
+  const ScrollMoveBottomIntent();
+}
+
