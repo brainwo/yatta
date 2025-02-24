@@ -1,4 +1,3 @@
-import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show showLicensePage;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +17,7 @@ class WelcomeMessage extends StatelessWidget {
     final isWide = windowWidth >= 1500;
 
     return KeyboardNavigation(
-      child: AutoscrollListView(
+      child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         children: [
           const SizedBox(height: 8),
@@ -197,19 +196,22 @@ class RecentHistory extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              AutoscrollSingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                    children: snapshot.data!
-                        .toList()
-                        .reversed
-                        .where((final e) => e.kind == 'video')
-                        .take(10)
-                        .map(
-                          (final data) =>
-                              _HomeVideoThumbnail(youtubeVideo: data),
-                        )
-                        .toList()),
+              SizedBox(
+                height: 220,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                      children: snapshot.data!
+                          .toList()
+                          .reversed
+                          .where((final e) => e.kind == 'video')
+                          .take(10)
+                          .map(
+                            (final data) =>
+                                _HomeVideoThumbnail(youtubeVideo: data),
+                          )
+                          .toList()),
+                ),
               ),
             ],
           ),

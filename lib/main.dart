@@ -1,3 +1,4 @@
+import 'package:auto_scrolling/auto_scrolling.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_api/youtube_api.dart';
 
+import 'common/scroll.dart';
 import 'const.dart';
 import 'helper/command_parser.dart';
 import 'intent.dart';
@@ -74,6 +76,7 @@ class App extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: FluentApp(
+        scrollBehavior: const AppScrollBehavior(),
         title: 'Yatta Video Search',
         shortcuts: {
           ...WidgetsApp.defaultShortcuts,

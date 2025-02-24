@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_api/youtube_api.dart';
@@ -84,7 +83,7 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
         ),
         content: KeyboardNavigation(
-          child: AutoscrollListView.builder(
+          child: ListView.builder(
             itemCount: filteredList?.length ?? 0,
             itemBuilder: (final context, final index) {
               final youtubeVideo =
