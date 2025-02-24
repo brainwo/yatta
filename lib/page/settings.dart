@@ -1,4 +1,3 @@
-import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show ToggleButtons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,7 +67,7 @@ class SettingsPage extends StatelessWidget {
                 _ => ['']
               };
 
-              return AutoscrollListView(
+              return ListView(
                 children: [
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),

@@ -1,6 +1,5 @@
 library search_result;
 
-import 'package:autoscroll/autoscroll.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:youtube_api/youtube_api.dart';
 
@@ -28,7 +27,7 @@ class _SearchResultState extends State<SearchResult> {
   @override
   Widget build(final BuildContext context) {
     return KeyboardNavigation(
-      child: AutoscrollListView.builder(
+      child: ListView.builder(
         itemCount: widget.result.length + 1,
         itemBuilder: (final context, final index) {
           if (index == widget.result.length) {

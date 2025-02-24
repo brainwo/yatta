@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:autoscroll/autoscroll.dart';
 import 'package:collection/collection.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:http/http.dart' as http;
@@ -99,7 +98,7 @@ class _FeedPageState extends State<FeedPage> {
           ),
         ),
         content: KeyboardNavigation(
-          child: AutoscrollListView.builder(
+          child: ListView.builder(
             itemCount: filteredList?.length ?? 0,
             itemBuilder: (final context, final index) {
               final youtubeVideo =
